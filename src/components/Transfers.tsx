@@ -459,14 +459,15 @@ export const Transfers: React.FC = () => {
               {/* Items composer Row */}
               <div className="border p-3 rounded-lg space-y-3 bg-slate-50 dark:bg-slate-955 dark:border-slate-800">
                 <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300">Add Medication lines:</h4>
-                <div className="grid gap-2 grid-cols-12 items-end">
-                  <div className="col-span-8">
-                    <span className="text-[9px] text-slate-400 font-bold uppercase">Medication</span>
+                <div className="grid gap-3 grid-cols-12 items-end">
+                  <div className="col-span-7">
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Medication</span>
                     <select
                       value={selectedProductId}
                       onChange={(e) => setSelectedProductId(e.target.value)}
-                      className="w-full rounded border bg-white border-slate-200 px-2.5 py-1.5 text-xs outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                      className="w-full rounded-xl border bg-white border-slate-200 px-3 py-2 text-xs outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white transition-all shadow-sm"
                     >
+                      <option value="">Select medication...</option>
                       {branchProducts.map(p => (
                         <option key={p.id} value={p.id}>{p.name} ({p.stockQty} in stock)</option>
                       ))}
@@ -474,23 +475,23 @@ export const Transfers: React.FC = () => {
                   </div>
                   
                   <div className="col-span-3">
-                    <span className="text-[9px] text-slate-400 font-bold uppercase">Qty</span>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Quantity</span>
                     <input
                       type="number"
                       min="1"
                       value={selectedQty}
                       onChange={(e) => setSelectedQty(Math.max(1, Number(e.target.value)))}
-                      className="w-full rounded border bg-white border-slate-200 px-2 py-1 text-xs text-center font-bold outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                      className="w-full rounded-xl border bg-white border-slate-200 px-3 py-2 text-xs text-center font-bold outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white transition-all shadow-sm"
                     />
                   </div>
                   
-                  <div className="col-span-1">
+                  <div className="col-span-2">
                     <button
                       type="button"
                       onClick={handleAddItemToTransfer}
-                      className="w-full p-1.5 bg-sky-600 rounded text-white flex items-center justify-center font-bold text-xs"
+                      className="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-lg shadow-sky-600/20 active:scale-[0.98] transition-all"
                     >
-                      +
+                      <Plus className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
