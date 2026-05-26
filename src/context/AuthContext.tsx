@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const defaultSettings: PharmacySettings = {
           pharmacyName: 'Zambezi Wellness Pharmacy',
           logo: '💊',
-          currency: 'USD',
+          currency: 'ZMW',
           taxRate: 15, // 15% VAT standard
           receiptFooter: 'Thank you for shopping with Zambezi Wellness!',
           invoicePrefix: 'ZW-INV-',

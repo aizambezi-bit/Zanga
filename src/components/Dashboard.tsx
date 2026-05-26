@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Product, Sale } from '../types';
+import { seedCompleteSystem } from '../utils/seeds';
 import { 
   DollarSign, 
   Package, 
@@ -11,7 +12,11 @@ import {
   TrendingUp, 
   MapPin, 
   AlertCircle,
-  CalendarDays
+  CalendarDays,
+  Database,
+  Sparkles,
+  RefreshCw,
+  Check
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -37,6 +42,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [seeding, setSeeding] = useState(false);
+  const [seedSuccess, setSeedSuccess] = useState(false);
+  const [seedError, setSeedError] = useState('');
+
+  const handleSeedSystem = async () => {
+    setSeeding(true);
+    setSeedError('');
+    setSeedSuccess(false);
+    try {
+      await seedCompleteSystem();
+      setSeedSuccess(true);
+      setTimeout(() => setSeedSuccess(false), 5500);
+    } catch (err: any) {
+      console.error(err);
+      setSeedError(err?.message || String(err));
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   // Determine which branch to lock to based on role
   const branchFilter = profile?.role === 'admin' ? selectedBranch : profile?.branchId || '';
@@ -186,6 +211,65 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         )}
       </div>
 
+      {/* Real-time Data Seeding Sandbox Banner (Visible to Admins) */}
+      {profile?.role === 'admin' && (
+        <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950/40 border border-teal-500/20 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-teal-500/5 rounded-full blur-[80px] pointer-events-none" />
+          <div className="flex items-start gap-4 relative z-10 text-left">
+            <div className="w-12 h-12 bg-teal-500/10 rounded-2xl flex items-center justify-center shrink-0 border border-teal-500/20 text-teal-400">
+              <Database className="h-6 w-6 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase text-teal-400 bg-teal-400/10 px-2 py-0.5 rounded tracking-wide border border-teal-500/10">Active Sandbox Seeder</span>
+                {products.length === 0 && (
+                  <span className="text-[10px] bg-amber-500/15 text-amber-500 border border-amber-500/20 font-extrabold px-2 py-0.5 rounded animate-pulse">Database Empty</span>
+                )}
+              </div>
+              <h3 className="text-md font-extrabold text-white mt-1.5 leading-snug uppercase tracking-tight font-display">
+                Instantly Bootstrap complete Pharmacy Sandbox
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
+                Click this button to seed {products.length > 0 ? 'additional' : 'initial'} branches, products catalogs with batches/expiries, a full week of completed sales history to populate analytics graphs, mock transfer orders, and chart of accounts ledgers.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative z-10 shrink-0 w-full md:w-auto">
+            <button
+              id="dashboard-seed-btn"
+              onClick={handleSeedSystem}
+              disabled={seeding}
+              className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-xs font-black transition-all ${
+                seedSuccess 
+                  ? 'bg-emerald-500 text-slate-950 font-black' 
+                  : 'bg-teal-500 hover:bg-teal-600 text-slate-950 shadow-lg shadow-teal-500/10 hover:shadow-teal-500/20 hover:scale-[1.01] cursor-pointer'
+              } disabled:opacity-50`}
+            >
+              {seeding ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  PROVISIONING SANDBOX...
+                </>
+              ) : seedSuccess ? (
+                <>
+                  <Check className="h-4 w-4 stroke-[3]" />
+                  MOCK DATA INSTALLED!
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  SEED TEST SYSTEM DATA
+                </>
+              )}
+            </button>
+            {seedError && (
+              <p className="text-[10px] text-red-500 mt-1.5 font-semibold text-center">{seedError}</p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Bento Grid layout */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         
@@ -195,7 +279,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <div>
               <p className="text-slate-400 text-[10px] font-extrabold uppercase tracking-widest font-display">Revenue Today</p>
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mt-1">
-                {settings?.currency || 'USD'} {todayStr === "2026-05-26" ? todayRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : todayRevenue.toFixed(2)}
+                {settings?.currency || 'ZMW'} {todayStr === "2026-05-26" ? todayRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : todayRevenue.toFixed(2)}
               </h2>
             </div>
             <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full text-xs font-bold border border-emerald-500/10">
@@ -322,7 +406,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                           </span>
                         </td>
                         <td className="px-6 py-3.5 font-extrabold text-slate-900 dark:text-white text-xs">
-                          {settings?.currency || 'USD'} {sale.total.toFixed(2)}
+                          {settings?.currency || 'ZMW'} {sale.total.toFixed(2)}
                         </td>
                       </tr>
                     ))
@@ -429,14 +513,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               <div className="bg-slate-50 dark:bg-slate-950/70 p-4 rounded-2xl border border-slate-200/10">
                 <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Purchase Cost Asset</span>
                 <h4 className="text-xl font-extrabold text-slate-900 dark:text-white mt-1.5">
-                  {settings?.currency || 'USD'} {totalStockValuation.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                  {settings?.currency || 'ZMW'} {totalStockValuation.toLocaleString('en-US', { maximumFractionDigits: 0 })}
                 </h4>
               </div>
               
               <div className="bg-slate-50 dark:bg-slate-950/70 p-4 rounded-2xl border border-slate-200/10">
                 <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Retail Sales Asset</span>
                 <h4 className="text-xl font-extrabold text-slate-900 dark:text-white mt-1.5">
-                  {settings?.currency || 'USD'} {totalRetailValuation.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                  {settings?.currency || 'ZMW'} {totalRetailValuation.toLocaleString('en-US', { maximumFractionDigits: 0 })}
                 </h4>
               </div>
             </div>

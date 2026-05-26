@@ -6,7 +6,10 @@ import {
   signOut 
 } from 'firebase/auth';
 import { 
-  getFirestore, 
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  getFirestore,
   doc, 
   getDoc, 
   getDocs, 
@@ -25,16 +28,39 @@ import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 const dbId = (firebaseConfig as any).firestoreDatabaseId;
-export const db = dbId ? getFirestore(app, dbId) : getFirestore(app);
+
+let firestoreInstance;
+try {
+  const cacheConfig = {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+    })
+  };
+  firestoreInstance = dbId 
+    ? initializeFirestore(app, cacheConfig, dbId) 
+    : initializeFirestore(app, cacheConfig);
+} catch (error) {
+  console.warn("Firestore persistent caching is unsupported in this environment. Falling back to default memory cache.", error);
+  firestoreInstance = dbId ? getFirestore(app, dbId) : getFirestore(app);
+}
+
+export const db = firestoreInstance;
 export const auth = getAuth();
 
 // Verification of Connection
 async function testConnection() {
   try {
+    // Attempt a quick connection test
     await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
+    console.log("Firebase connection established successfully.");
+  } catch (error: any) {
     if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration: Client is offline.");
+      console.warn(
+        "Notice: Firebase client is operating in offline-cached mode.\n" +
+        "Wait a moment; standard operation will proceed and changes will synchronize automatically with 'zanga-zanga-79386' once a connection is established."
+      );
+    } else {
+      console.warn("Firebase connection test notice:", error?.message || error);
     }
   }
 }

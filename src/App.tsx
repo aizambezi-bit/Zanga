@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { Login } from './components/Login';
+import { LandingPage } from './components/LandingPage';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { POS } from './components/POS';
@@ -29,7 +29,7 @@ const AppContent: React.FC = () => {
   }
 
   if (!profile) {
-    return <Login />;
+    return <LandingPage />;
   }
 
   // Render subcomponents according to navigation selection
