@@ -1,0 +1,6 @@
+{
+  "name": "Pharmacy Management System",
+  "description": "Enterprise-grade Pharmacy ERP and POS Web Application with multi-branch inventory, batch expiries, accounting journal, and role privileges.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

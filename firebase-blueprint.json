@@ -1,0 +1,157 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account information with roles and branch associations for access control.",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "manager", "assistant", "cashier"] },
+        "branchId": { "type": "string" },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["displayName", "email", "role", "branchId", "active", "createdAt", "updatedAt"]
+    },
+    "Branch": {
+      "title": "Pharmacy Branch",
+      "description": "Branch details representing different geographic locations.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "code", "address", "phone", "status", "createdAt", "updatedAt"]
+    },
+    "Product": {
+      "title": "Pharmacy Product / Medication",
+      "description": "Stock details, batch tracking, and pricing for a product at a specific branch.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "SKU": { "type": "string" },
+        "barcode": { "type": "string" },
+        "category": { "type": "string" },
+        "unitPrice": { "type": "number" },
+        "costPrice": { "type": "number" },
+        "stockQty": { "type": "number" },
+        "reorderLevel": { "type": "number" },
+        "expiryDate": { "type": "string" },
+        "batchNumber": { "type": "string" },
+        "branchId": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "SKU", "barcode", "category", "unitPrice", "costPrice", "stockQty", "reorderLevel", "expiryDate", "batchNumber", "branchId", "status", "createdAt", "updatedAt"]
+    },
+    "Sale": {
+      "title": "Sales Transaction",
+      "description": "Sale transactions processed through the POS system.",
+      "type": "object",
+      "properties": {
+        "saleId": { "type": "string" },
+        "branchId": { "type": "string" },
+        "cashierId": { "type": "string" },
+        "cashierName": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "discount": { "type": "number" },
+        "tax": { "type": "number" },
+        "total": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "paymentDetails": { "type": "object" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["saleId", "branchId", "cashierId", "cashierName", "items", "subtotal", "discount", "tax", "total", "paymentMethod", "status", "createdAt"]
+    },
+    "Transfer": {
+      "title": "Stock Transfer Request",
+      "description": "Stock movement requests from one branch to another.",
+      "type": "object",
+      "properties": {
+        "sourceBranchId": { "type": "string" },
+        "targetBranchId": { "type": "string" },
+        "requestedBy": { "type": "string" },
+        "requestedByName": { "type": "string" },
+        "approvedBy": { "type": "string" },
+        "approvedByName": { "type": "string" },
+        "items": { "type": "array" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "comments": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["sourceBranchId", "targetBranchId", "requestedBy", "requestedByName", "items", "status", "createdAt", "updatedAt"]
+    },
+    "AccountingEntry": {
+      "title": "Accounting Entry / Journal Record",
+      "description": "Accounting journals, profit/loss, ledger logs, and cashbook records.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["expense", "revenue", "ledger", "journal"] },
+        "category": { "type": "string" },
+        "code": { "type": "string" },
+        "amount": { "type": "number" },
+        "description": { "type": "string" },
+        "branchId": { "type": "string" },
+        "date": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["type", "category", "amount", "description", "branchId", "date", "createdAt"]
+    },
+    "Setting": {
+      "title": "Pharmacy Configuration",
+      "description": "System-wide and branch configurations, currencies, and low stock warnings.",
+      "type": "object",
+      "properties": {
+        "pharmacyName": { "type": "string" },
+        "logo": { "type": "string" },
+        "currency": { "type": "string" },
+        "taxRate": { "type": "number" },
+        "receiptFooter": { "type": "string" },
+        "invoicePrefix": { "type": "string" },
+        "lowStockThreshold": { "type": "number" }
+      },
+      "required": ["pharmacyName", "currency", "taxRate", "receiptFooter", "invoicePrefix", "lowStockThreshold"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User list with roles"
+    },
+    "/branches/{branchId}": {
+      "schema": "Branch",
+      "description": "Pharmacy branches"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Medications and stock per branch"
+    },
+    "/sales/{saleId}": {
+      "schema": "Sale",
+      "description": "Sales records"
+    },
+    "/transfers/{transferId}": {
+      "schema": "Transfer",
+      "description": "Inter-branch product transfer logs"
+    },
+    "/accounting/{docId}": {
+      "schema": "AccountingEntry",
+      "description": "Accounting records and expenses"
+    },
+    "/settings/{docId}": {
+      "schema": "Setting",
+      "description": "Global config options"
+    }
+  }
+}
