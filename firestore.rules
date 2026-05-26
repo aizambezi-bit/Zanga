@@ -23,20 +23,22 @@ service cloud.firestore {
     }
 
     function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return userExists()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data
+        : null;
     }
 
     function getUserRole() {
-      return getUserData().role;
+      return userExists() ? getUserData().role : null;
     }
 
     function getUserBranchId() {
-      return getUserData().branchId;
+      return userExists() ? getUserData().branchId : null;
     }
 
     function isAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'aizambezi@gmail.com' ||
+        (request.auth.token != null && request.auth.token.email == 'aizambezi@gmail.com') ||
         (userExists() && getUserRole() == 'admin')
       );
     }
