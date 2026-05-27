@@ -207,7 +207,7 @@ export const POS: React.FC = () => {
     if (paymentMethod === 'split') {
       const sum = cashSplit + cardSplit + mobileSplit;
       if (Math.abs(sum - grandTotal) > 0.05) {
-        alert(`Split total (${settings?.currency || '$'}${sum.toFixed(2)}) must exactly equal grand total (${settings?.currency || '$'}${grandTotal.toFixed(2)})`);
+        alert(`Split total (${settings?.currency || 'K'}${sum.toFixed(2)}) must exactly equal grand total (${settings?.currency || 'K'}${grandTotal.toFixed(2)})`);
         return;
       }
     }
@@ -316,7 +316,7 @@ export const POS: React.FC = () => {
     <div className="grid gap-6 lg:grid-cols-12 h-[calc(100vh-120px)]">
       
       {/* LEFT PORTION: SEARCH & PRODUCT SELECTION */}
-      <div className="lg:col-span-7 flex flex-col justify-between border border-slate-250 bg-white rounded-xl shadow-sm p-4 dark:bg-slate-900 dark:border-slate-800">
+      <div className="lg:col-span-7 flex flex-col justify-between border border-slate-200 dark:border-slate-800 bg-white rounded-3xl shadow-sm p-6 dark:bg-slate-900 bento-card">
         <div>
           {/* Filters row */}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -327,7 +327,7 @@ export const POS: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Lookup Name, SKU or Barcode..."
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-4 py-2 text-sm outline-none transition focus:border-sky-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-2 text-sm outline-none transition focus:border-sky-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-white"
               />
               {searchQuery && (
                 <button 
@@ -341,7 +341,7 @@ export const POS: React.FC = () => {
             
             <button
               onClick={simulateBarcodeScan}
-              className="px-3 py-2 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
+              className="px-4 py-2 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 border border-amber-100 dark:border-amber-900/30"
               title="Simulates standard scan trigger"
             >
               📊 Trigger Scan
@@ -349,14 +349,14 @@ export const POS: React.FC = () => {
           </div>
 
           {/* Categories track */}
-          <div className="flex gap-1.5 mt-3 overflow-x-auto pb-1 max-w-full">
+          <div className="flex gap-2 mt-4 overflow-x-auto pb-1 max-w-full">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1 text-xs font-semibold rounded-full capitalize whitespace-nowrap ${
+                className={`px-4 py-1.5 text-xs font-semibold rounded-full capitalize whitespace-nowrap transition ${
                   selectedCategory === cat 
-                    ? 'bg-sky-600 text-white' 
+                    ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20' 
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
                 }`}
               >
@@ -366,7 +366,7 @@ export const POS: React.FC = () => {
           </div>
 
           {/* Catalog grid */}
-          <div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-3 overflow-y-auto max-h-[350px] lg:max-h-[460px] pr-1">
+          <div className="mt-6 grid gap-4 grid-cols-2 md:grid-cols-3 overflow-y-auto max-h-[350px] lg:max-h-[460px] pr-1">
             {filteredProducts.length === 0 ? (
               <div className="col-span-full py-12 text-center text-slate-400 text-xs">
                 {products.length === 0 ? 'No products registered for this branch.' : 'No matched medication items.'}
@@ -376,18 +376,18 @@ export const POS: React.FC = () => {
                 <button
                   key={prod.id}
                   onClick={() => addToCart(prod)}
-                  className="p-3 border border-slate-205 rounded-xl bg-slate-50/50 hover:bg-slate-50 active:scale-98 transition text-left relative flex flex-col justify-between dark:bg-slate-950 dark:border-slate-800 dark:hover:bg-slate-900 group"
+                  className="p-4 border border-slate-100 rounded-2xl bg-slate-50/50 hover:bg-slate-50 hover:border-slate-200 active:scale-[0.98] transition text-left relative flex flex-col justify-between dark:bg-slate-950 dark:border-slate-800 dark:hover:bg-slate-900 group shadow-sm"
                 >
                   <div>
                     <span className="text-[9px] font-mono tracking-widest text-slate-400 block mb-1">{prod.SKU}</span>
                     <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight line-clamp-2">{prod.name}</h3>
                   </div>
                   
-                  <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                  <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
                     <span className="font-bold text-sky-600 text-xs md:text-sm dark:text-sky-400">
-                      {settings?.currency || '$'}{prod.unitPrice.toFixed(2)}
+                      {settings?.currency || 'K'}{prod.unitPrice.toFixed(2)}
                     </span>
-                    <span className={`text-[10px] font-semibold px-1 rounded ${
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                       prod.stockQty <= (prod.reorderLevel || 10) 
                         ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400' 
                         : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
@@ -403,35 +403,35 @@ export const POS: React.FC = () => {
 
         {/* BOTTOM SEGMENT: HELD CARTS (if any) */}
         {heldCarts.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <h4 className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1.5 dark:text-slate-400">
+          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <h4 className="text-xs font-semibold text-slate-500 mb-3 flex items-center gap-1.5 dark:text-slate-400">
               <Pause className="h-3.5 w-3.5 text-amber-500" />
               Held Queued Bills ({heldCarts.length}):
             </h4>
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="flex gap-3 overflow-x-auto pb-1">
               {heldCarts.map(hc => (
                 <div 
                   key={hc.id} 
-                  className="rounded-lg bg-slate-50 border border-slate-250 p-2 text-xs flex items-center gap-2 shrink-0 dark:bg-slate-950 dark:border-slate-850"
+                  className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs flex items-center gap-3 shrink-0 dark:bg-slate-950 dark:border-slate-850"
                 >
                   <div>
                     <span className="font-bold text-slate-700 dark:text-slate-300">{hc.id}</span>
-                    <p className="text-[9px] text-slate-400 mt-0.5">{hc.time} • {settings?.currency || '$'}{hc.originalTotal.toFixed(2)}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{hc.time} • {settings?.currency || 'K'}{hc.originalTotal.toFixed(2)}</p>
                   </div>
                   
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     <button 
                       onClick={() => resumeCart(hc.id)}
-                      className="p-1 rounded bg-sky-100 text-sky-700 hover:bg-sky-200 dark:bg-sky-950 dark:text-sky-300"
+                      className="p-1.5 rounded-lg bg-sky-100 text-sky-700 hover:bg-sky-200 dark:bg-sky-950 dark:text-sky-300"
                       title="Load Draft"
                     >
-                      <Play className="h-3 w-3" />
+                      <Play className="h-3.5 w-3.5" />
                     </button>
                     <button 
                       onClick={() => deleteHeldCart(hc.id)}
-                      className="p-1 rounded bg-red-105 text-red-700 hover:bg-red-200 dark:bg-red-950 dark:text-red-400"
+                      className="p-1.5 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-950 dark:text-red-400"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
@@ -442,19 +442,19 @@ export const POS: React.FC = () => {
       </div>
 
       {/* RIGHT PORTION: CARTS SUMMARY & TOTALS */}
-      <div className="lg:col-span-5 flex flex-col justify-between border border-slate-200 bg-white rounded-xl shadow-sm p-4 dark:bg-slate-900 dark:border-slate-800">
+      <div className="lg:col-span-5 flex flex-col justify-between border border-slate-200 dark:border-slate-800 bg-white rounded-3xl shadow-sm p-6 dark:bg-slate-900 bento-card">
         <div>
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-            <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+            <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
               🛒 Current Basket
             </h3>
-            <span className="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-full dark:bg-slate-800 dark:text-slate-300">
-              {cart.reduce((t, c) => t + c.quantity, 0)} medications
+            <span className="text-xs bg-slate-100 text-slate-700 font-bold px-3 py-1 rounded-full dark:bg-slate-800 dark:text-slate-300">
+              {cart.reduce((t, c) => t + c.quantity, 0)} items
             </span>
           </div>
 
           {/* Cart list details */}
-          <div className="mt-4 gap-3 space-y-2 overflow-y-auto max-h-[220px] lg:max-h-[320px] pr-1">
+          <div className="mt-6 gap-4 space-y-3 overflow-y-auto max-h-[220px] lg:max-h-[320px] pr-1">
             {cart.length === 0 ? (
               <div className="text-center py-16 text-slate-400 text-xs">
                 Carts basket is empty. Select medications from catalog side.
@@ -463,36 +463,36 @@ export const POS: React.FC = () => {
               cart.map((item) => (
                 <div 
                   key={item.product.id} 
-                  className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs dark:bg-slate-950 dark:border-slate-800/50"
+                  className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs dark:bg-slate-950 dark:border-slate-800/50"
                 >
                   <div className="flex-1 max-w-[170px] md:max-w-[220px]">
                     <h5 className="font-bold text-slate-800 dark:text-slate-200 truncate">{item.product.name}</h5>
                     <p className="text-[10px] text-slate-400 mt-0.5">
-                      {settings?.currency || '$'}{item.product.unitPrice.toFixed(2)} / unit
+                      {settings?.currency || 'K'}{item.product.unitPrice.toFixed(2)} / unit
                     </p>
                   </div>
 
                   {/* Quantity controls */}
-                  <div className="flex items-center gap-2 bg-white px-2 py-1 rounded border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-                    <button onClick={() => updateQuantity(item.product.id, -1)} className="p-0.5 text-slate-500 hover:bg-slate-100 rounded">
-                      <Minus className="h-3 w-3" />
+                  <div className="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+                    <button onClick={() => updateQuantity(item.product.id, -1)} className="text-slate-500 hover:text-slate-700">
+                      <Minus className="h-3.5 w-3.5" />
                     </button>
-                    <span className="font-bold text-slate-800 dark:text-slate-105 min-w-[15px] text-center">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.product.id, 1)} className="p-0.5 text-slate-500 hover:bg-slate-100 rounded">
-                      <Plus className="h-3 w-3" />
+                    <span className="font-bold text-slate-800 dark:text-slate-100 w-4 text-center">{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.product.id, 1)} className="text-slate-500 hover:text-slate-700">
+                      <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
 
                   {/* Item Total Price */}
-                  <div className="text-right pl-2">
+                  <div className="text-right pl-3">
                     <span className="font-bold text-slate-850 dark:text-white">
-                      {settings?.currency || '$'}{((item.product.unitPrice - item.discountAmount) * item.quantity).toFixed(2)}
+                      {settings?.currency || 'K'}{((item.product.unitPrice - item.discountAmount) * item.quantity).toFixed(2)}
                     </span>
                     <button 
                       onClick={() => removeFromCart(item.product.id)}
-                      className="text-slate-400 hover:text-red-500 ml-2 p-0.5 inline-block"
+                      className="text-slate-400 hover:text-red-500 ml-3 inline-block"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -502,12 +502,12 @@ export const POS: React.FC = () => {
         </div>
 
         {/* Pricing Vouchers & Checkout controls */}
-        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
+        <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 space-y-5">
           
           {/* Discount details */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 dark:text-slate-405 mb-1">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-450 dark:text-slate-405 mb-2">
                 Discount (%)
               </label>
               <input
@@ -516,17 +516,17 @@ export const POS: React.FC = () => {
                 max="100"
                 value={discountPercent}
                 onChange={(e) => setDiscountPercent(Math.max(0, Math.min(100, Number(e.target.value))))}
-                className="w-full rounded border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs outline-none focus:border-sky-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-sky-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-white"
               />
             </div>
             
-            <div className="flex items-center mt-4">
-              <label className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 select-none">
+            <div className="flex items-end pb-1">
+              <label className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 select-none font-semibold">
                 <input
                   type="checkbox"
                   checked={isTaxExempt}
                   onChange={(e) => setIsTaxExempt(e.target.checked)}
-                  className="rounded border-slate-200 text-sky-600 focus:ring-sky-500"
+                  className="rounded-md border-slate-200 text-sky-600 focus:ring-sky-500 h-4 w-4"
                 />
                 Exempt Vat ({taxRate}%)
               </label>
@@ -534,43 +534,43 @@ export const POS: React.FC = () => {
           </div>
 
           {/* Checkout Totals */}
-          <div className="bg-slate-50 p-3 rounded-xl space-y-2 border border-slate-100 dark:bg-slate-950 dark:border-slate-800/40">
+          <div className="bg-slate-50 p-5 rounded-2xl space-y-3 border border-slate-100 dark:bg-slate-950 dark:border-slate-800/40">
             <div className="flex items-center justify-between text-xs text-slate-500">
               <span>Basket Subtotal</span>
-              <span className="font-semibold">{settings?.currency || '$'}{subtotal.toFixed(2)}</span>
+              <span className="font-semibold">{settings?.currency || 'K'}{subtotal.toFixed(2)}</span>
             </div>
             {discountPercent > 0 && (
               <div className="flex items-center justify-between text-xs text-emerald-600">
                 <span>Group Discount ({discountPercent}%)</span>
-                <span>-{settings?.currency || '$'}{discountValue.toFixed(2)}</span>
+                <span className="font-semibold">-{settings?.currency || 'K'}{discountValue.toFixed(2)}</span>
               </div>
             )}
             <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
               <span>Vat Surcharges ({isTaxExempt ? 'Exempt' : `${taxRate}%`})</span>
-              <span className="font-semibold">{settings?.currency || '$'}{taxValue.toFixed(2)}</span>
+              <span className="font-semibold">{settings?.currency || 'K'}{taxValue.toFixed(2)}</span>
             </div>
-            <div className="flex items-center justify-between border-t border-dashed border-slate-200 pt-2 dark:border-slate-800">
+            <div className="flex items-center justify-between border-t border-dashed border-slate-200 pt-3 mt-1 dark:border-slate-800">
               <span className="text-sm font-bold text-slate-800 dark:text-white">Payable Grand Total</span>
-              <span className="text-lg font-extrabold text-sky-600 dark:text-sky-400">
-                {settings?.currency || '$'}{grandTotal.toFixed(2)}
+              <span className="text-xl font-extrabold text-sky-600 dark:text-sky-400">
+                {settings?.currency || 'K'}{grandTotal.toFixed(2)}
               </span>
             </div>
           </div>
 
           {/* Action Triggers */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <button
               onClick={holdActiveCart}
               disabled={cart.length === 0}
-              className="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition"
+              className="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition"
             >
-              <Pause className="h-3.5 w-3.5" />
+              <Pause className="h-4 w-4" />
               Hold Ticket
             </button>
             <button
               onClick={triggerCheckout}
               disabled={cart.length === 0}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition shadow"
+              className="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-600/20"
             >
               <CoinAndPayIcon method={paymentMethod} />
               Finalize Checkout

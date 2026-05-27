@@ -251,7 +251,7 @@ export const Inventory: React.FC = () => {
         {profile?.role !== 'assistant' && (
           <button
             onClick={() => openForm(null)}
-            className="px-4 py-2 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white rounded-lg text-xs font-bold leading-none flex items-center gap-1 transition"
+            className="px-4 py-2 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white rounded-2xl text-xs font-bold leading-none flex items-center gap-1 transition shadow-lg shadow-sky-600/20"
           >
             <Plus className="h-4 w-4" /> Add Product Batch
           </button>
@@ -259,7 +259,7 @@ export const Inventory: React.FC = () => {
       </div>
 
       {/* SEARCH PANEL row */}
-      <div className="bg-white border p-4 rounded-xl shadow-sm space-y-4 dark:bg-slate-900 dark:border-slate-800">
+      <div className="bg-white border dark:border-slate-800 p-6 rounded-3xl shadow-sm space-y-4 dark:bg-slate-900 bento-card">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           
           {/* text lookup */}
@@ -270,7 +270,7 @@ export const Inventory: React.FC = () => {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder="Search Name or SKU..."
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-4 py-1.5 text-xs outline-none focus:border-sky-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-2 text-xs outline-none focus:border-sky-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
@@ -279,7 +279,7 @@ export const Inventory: React.FC = () => {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white"
             >
               <option value="all">All Category Classes</option>
               {categories.map(c => (
@@ -293,7 +293,7 @@ export const Inventory: React.FC = () => {
             <select
               value={stockStatusFilter}
               onChange={(e) => setStockStatusFilter(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white"
             >
               <option value="all">All Levels Status</option>
               <option value="low">Low Stock Alerts Only</option>
@@ -308,7 +308,7 @@ export const Inventory: React.FC = () => {
               <select
                 value={selectedBranchFilter}
                 onChange={(e) => setSelectedBranchFilter(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white"
               >
                 <option value="all">All Store Branches</option>
                 {branches.map(b => (
@@ -317,7 +317,7 @@ export const Inventory: React.FC = () => {
               </select>
             </div>
           ) : (
-            <div className="flex items-center text-xs text-slate-500 gap-1 rounded bg-slate-100 p-2 dark:bg-slate-950 dark:text-slate-400">
+            <div className="flex items-center text-xs text-slate-500 gap-1 rounded-xl bg-slate-100 p-2 dark:bg-slate-950 dark:text-slate-400">
               📍 Locked to assigned branch.
             </div>
           )}
@@ -325,10 +325,10 @@ export const Inventory: React.FC = () => {
       </div>
 
       {/* MAIN DATA TABLE LIST */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm dark:bg-slate-900 dark:border-slate-800 overflow-hidden">
+      <div className="bg-white border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm dark:bg-slate-900 overflow-hidden bento-card">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs md:text-sm">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-bold text-[10px] dark:bg-slate-950 dark:border-slate-850">
+            <thead className="bg-slate-50/50 border-b border-slate-100 dark:border-slate-800 text-slate-500 uppercase font-bold text-[10px] dark:bg-slate-950">
               <tr>
                 <th className="p-4">SKU & Product description</th>
                 <th className="p-4">Category</th>
@@ -360,11 +360,11 @@ export const Inventory: React.FC = () => {
                   return (
                     <tr key={p.id} className="hover:bg-slate-50/65 dark:hover:bg-slate-950/40 transition">
                       <td className="p-4">
-                        <div className="font-bold text-slate-850 dark:text-white">{p.name}</div>
+                        <div className="font-bold text-slate-900 dark:text-white">{p.name}</div>
                         <div className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
                           <span>SKU: {p.SKU}</span> • <span>Barcode: {p.barcode}</span>
                           {profile?.role === 'admin' && (
-                            <span className="bg-slate-200 text-slate-700 px-1 rounded transform scale-90">
+                            <span className="bg-slate-200 text-slate-700 px-1 rounded-sm transform scale-90">
                               {branches.find(b => b.id === p.branchId)?.code || p.branchId}
                             </span>
                           )}
@@ -402,11 +402,11 @@ export const Inventory: React.FC = () => {
                         </div>
                       </td>
                       <td className="p-4 text-xs font-medium">
-                        <div>Cost: {settings?.currency || '$'}{p.costPrice.toFixed(2)}</div>
-                        <div className="mt-0.5 font-bold text-sky-600 dark:text-sky-400">Retail: {settings?.currency || '$'}{p.unitPrice.toFixed(2)}</div>
+                        <div>Cost: {settings?.currency || 'K'}{p.costPrice.toFixed(2)}</div>
+                        <div className="mt-0.5 font-bold text-sky-600 dark:text-sky-400">Retail: {settings?.currency || 'K'}{p.unitPrice.toFixed(2)}</div>
                       </td>
                       <td className="p-4">
-                        <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        <span className={`inline-flex px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
                           p.status === 'active' 
                             ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' 
                             : 'bg-slate-100 text-slate-500 dark:bg-slate-800'
@@ -418,7 +418,7 @@ export const Inventory: React.FC = () => {
                         <div className="inline-flex gap-1">
                           <button
                             onClick={() => triggerAdjustment(p)}
-                            className="px-2 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded text-[11px] font-semibold dark:bg-amber-950/20 dark:text-amber-400 transition"
+                            className="px-2 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-[11px] font-semibold dark:bg-amber-950/20 dark:text-amber-400 transition"
                             title="Adjust quantity"
                           >
                             Adjust
@@ -427,7 +427,7 @@ export const Inventory: React.FC = () => {
                           {profile?.role !== 'assistant' && (
                             <button
                               onClick={() => openForm(p)}
-                              className="p-1 rounded text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-950/40"
+                              className="p-1 rounded-lg text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-950/40"
                               title="Edit item information"
                             >
                               <Edit className="h-4 w-4" />

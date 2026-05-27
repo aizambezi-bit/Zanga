@@ -49,9 +49,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const allowedItems = menuItems.filter(item => item.roles.includes(profile.role));
 
   const handleSignout = async () => {
-    if (confirm('Are you sure you want to sign out of the system?')) {
-      await logoutUser();
-    }
+    console.log("Signout triggered without confirm");
+    await logoutUser();
   };
 
   return (

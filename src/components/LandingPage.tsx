@@ -306,11 +306,11 @@ export const LandingPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-2 pt-1 font-mono text-[10px]">
                 <div className="bg-slate-950/50 p-2.5 rounded-xl border border-white/5">
                   <span className="text-slate-500 block uppercase">Accounts Receivable</span>
-                  <span className="text-white font-extrabold block mt-0.5">$14,230</span>
+                  <span className="text-white font-extrabold block mt-0.5">K14,230</span>
                 </div>
                 <div className="bg-slate-950/50 p-2.5 rounded-xl border border-white/5">
                   <span className="text-slate-500 block uppercase">Operating Cash</span>
-                  <span className="text-emerald-400 font-extrabold block mt-0.5">$84,100</span>
+                  <span className="text-emerald-400 font-extrabold block mt-0.5">K84,100</span>
                 </div>
               </div>
             </div>

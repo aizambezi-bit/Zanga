@@ -325,7 +325,7 @@ export const Transfers: React.FC = () => {
       {/* RECENT REQUESTS LISTING TABLE */}
       <div className="bg-white border rounded-xl shadow-sm dark:bg-slate-900 dark:border-slate-800 overflow-hidden">
         <div className="p-4 border-b dark:border-slate-800">
-          <h3 className="font-semibold text-slate-800 dark:text-white text-xs md:text-sm">Inter-branch Transports Ledger</h3>
+          <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-xs md:text-sm">Inter-branch Transports Ledger</h3>
         </div>
 
         <div className="overflow-x-auto">

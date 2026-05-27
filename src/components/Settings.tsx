@@ -17,7 +17,7 @@ export const Settings: React.FC = () => {
   
   // Form State
   const [pharmacyName, setPharmacyName] = useState('');
-  const [currency, setCurrency] = useState('ZMW');
+  const [currency, setCurrency] = useState('K');
   const [taxRate, setTaxRate] = useState(15);
   const [lowStockThreshold, setLowStockThreshold] = useState(10);
   const [address, setAddress] = useState('');
@@ -29,7 +29,7 @@ export const Settings: React.FC = () => {
   useEffect(() => {
     if (settings) {
       setPharmacyName(settings.pharmacyName || '');
-      setCurrency(settings.currency || 'ZMW');
+      setCurrency(settings.currency || 'K');
       setTaxRate(settings.taxRate ?? 15);
       setLowStockThreshold(settings.lowStockThreshold ?? 10);
       setAddress(settings.address || '');

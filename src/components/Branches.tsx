@@ -103,7 +103,7 @@ export const BranchesManagement: React.FC = () => {
     return (
       <div className="p-12 text-center bg-white rounded-xl border max-w-md mx-auto space-y-4">
         <BadgeAlert className="h-10 w-10 text-amber-500 mx-auto" />
-        <h2 className="text-md font-bold text-slate-800">Branch Configuration Access Enforced</h2>
+        <h2 className="text-md font-bold text-slate-800 dark:text-white">Branch Configuration Access Enforced</h2>
         <p className="text-xs text-slate-500">Only global administrators may add or deactivate primary retail branches.</p>
       </div>
     );

@@ -175,18 +175,18 @@ export const Accounting: React.FC = () => {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="p-4 bg-white border border-slate-100 rounded-xl shadow-sm dark:bg-slate-900 dark:border-slate-800">
           <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Total Ledger Receipts</span>
-          <h3 className="text-xl font-extrabold text-emerald-600 mt-1">{settings?.currency || '$'}{revenueTotal.toFixed(2)}</h3>
+          <h3 className="text-xl font-extrabold text-emerald-600 mt-1">{settings?.currency || 'K'}{revenueTotal.toFixed(2)}</h3>
           <p className="text-[10px] text-slate-400 mt-1">Automatic POS registers & AR pay-ins</p>
         </div>
         <div className="p-4 bg-white border border-slate-100 rounded-xl shadow-sm dark:bg-slate-900 dark:border-slate-800">
           <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Total Disbursed Expenses</span>
-          <h3 className="text-xl font-extrabold text-red-500 mt-1">{settings?.currency || '$'}{expenseTotal.toFixed(2)}</h3>
+          <h3 className="text-xl font-extrabold text-red-500 mt-1">{settings?.currency || 'K'}{expenseTotal.toFixed(2)}</h3>
           <p className="text-[10px] text-slate-400 mt-1">Wholesale drug orders, leases & bills</p>
         </div>
         <div className="p-4 bg-white border border-slate-100 rounded-xl shadow-sm dark:bg-slate-900 dark:border-slate-800">
           <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Net General operating Margin</span>
           <h3 className={`text-xl font-extrabold mt-1 ${operationalResult >= 0 ? 'text-sky-600 dark:text-sky-400' : 'text-rose-600'}`}>
-            {settings?.currency || '$'}{operationalResult.toFixed(2)}
+            {settings?.currency || 'K'}{operationalResult.toFixed(2)}
           </h3>
           <p className="text-[10px] text-slate-400 mt-1">Real-time dynamic EBIT margin</p>
         </div>
@@ -244,7 +244,7 @@ export const Accounting: React.FC = () => {
                       <td className="p-3 font-semibold">{a.name}</td>
                       <td className="p-3 uppercase font-bold text-[9px] text-slate-450">{a.type}</td>
                       <td className="p-3 text-right font-mono font-semibold">
-                        {settings?.currency || '$'}{a.base.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        {settings?.currency || 'K'}{a.base.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
                   ))}
@@ -283,10 +283,10 @@ export const Accounting: React.FC = () => {
                         <td className="p-3 italic text-slate-500">"{e.description}"</td>
                         <td className="p-3">{e.date}</td>
                         <td className="p-3 text-right font-mono font-bold text-emerald-600">
-                          {isRev ? `${settings?.currency || '$'}${e.amount.toFixed(2)}` : '-'}
+                          {isRev ? `${settings?.currency || 'K'}${e.amount.toFixed(2)}` : '-'}
                         </td>
                         <td className="p-3 text-right font-mono font-semibold text-red-500">
-                          {!isRev ? `${settings?.currency || '$'}${e.amount.toFixed(2)}` : '-'}
+                          {!isRev ? `${settings?.currency || 'K'}${e.amount.toFixed(2)}` : '-'}
                         </td>
                       </tr>
                     );
@@ -312,11 +312,11 @@ export const Accounting: React.FC = () => {
               </div>
               <div className="flex justify-between text-slate-650 dark:text-slate-305 pl-4">
                 <span>Standard Sales Checkout income</span>
-                <span>{settings?.currency || '$'}{revenueTotal.toFixed(2)}</span>
+                <span>{settings?.currency || 'K'}{revenueTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-extrabold text-indigo-700 bg-slate-100 p-2 rounded dark:bg-slate-900 dark:text-indigo-400">
                 <span>Gross Income Sum:</span>
-                <span>{settings?.currency || '$'}{revenueTotal.toFixed(2)}</span>
+                <span>{settings?.currency || 'K'}{revenueTotal.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between font-bold border-b pb-1 pt-4">
@@ -325,19 +325,19 @@ export const Accounting: React.FC = () => {
               </div>
               <div className="flex justify-between text-slate-650 dark:text-slate-300 pl-4">
                 <span>Medication Sourcing Purchases</span>
-                <span>{settings?.currency || '$'}{entries.filter(e => e.code === '5010').reduce((t, e) => t + e.amount, 0).toFixed(2)}</span>
+                <span>{settings?.currency || 'K'}{entries.filter(e => e.code === '5010').reduce((t, e) => t + e.amount, 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-slate-650 dark:text-slate-300 pl-4">
                 <span>Physical Shop Rent Leases</span>
-                <span>{settings?.currency || '$'}{entries.filter(e => e.code === '5050').reduce((t, e) => t + e.amount, 0).toFixed(2)}</span>
+                <span>{settings?.currency || 'K'}{entries.filter(e => e.code === '5050').reduce((t, e) => t + e.amount, 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-slate-650 dark:text-slate-300 pl-4">
                 <span>Energy Utilities Power grid bills</span>
-                <span>{settings?.currency || '$'}{entries.filter(e => e.code === '5060').reduce((t, e) => t + e.amount, 0).toFixed(2)}</span>
+                <span>{settings?.currency || 'K'}{entries.filter(e => e.code === '5060').reduce((t, e) => t + e.amount, 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-extrabold text-red-700 bg-red-50 p-2 rounded dark:bg-red-950/40 dark:text-red-400">
                 <span>Expenses Cost Sum:</span>
-                <span>-{settings?.currency || '$'}{expenseTotal.toFixed(2)}</span>
+                <span>-{settings?.currency || 'K'}{expenseTotal.toFixed(2)}</span>
               </div>
 
               <div className="border-t-2 border-dashed border-slate-300 my-4" />
@@ -346,7 +346,7 @@ export const Accounting: React.FC = () => {
                 operationalResult >= 0 ? 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-305' : 'bg-red-100 text-red-850'
               }`}>
                 <span>{operationalResult >= 0 ? 'NET NET OPERATING PROFIT' : 'NET OPERATING DEFICIT LOSS'}</span>
-                <span>{settings?.currency || '$'}{operationalResult.toFixed(2)}</span>
+                <span>{settings?.currency || 'K'}{operationalResult.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -380,10 +380,10 @@ export const Accounting: React.FC = () => {
                         <td className="p-3 font-bold text-slate-500">{a.code}</td>
                         <td className="p-3 font-sans font-semibold">{a.name}</td>
                         <td className="p-3 text-right font-bold text-slate-800 dark:text-slate-100">
-                          {isDebitNode ? `${settings?.currency || '$'}${a.base.toFixed(2)}` : '-'}
+                          {isDebitNode ? `${settings?.currency || 'K'}${a.base.toFixed(2)}` : '-'}
                         </td>
                         <td className="p-3 text-right font-bold text-slate-600 dark:text-slate-400">
-                          {!isDebitNode ? `${settings?.currency || '$'}${a.base.toFixed(2)}` : '-'}
+                          {!isDebitNode ? `${settings?.currency || 'K'}${a.base.toFixed(2)}` : '-'}
                         </td>
                       </tr>
                     );
@@ -392,10 +392,10 @@ export const Accounting: React.FC = () => {
                   <tr className="bg-slate-100 dark:bg-slate-950 font-bold border-t-2 text-slate-900 dark:text-white">
                     <td colSpan={2} className="p-3 text-right font-sans">Double-Entry trial verification:</td>
                     <td className="p-3 text-right text-emerald-600">
-                      {settings?.currency || '$'}{(coa.reduce((t, a) => (a.type === 'asset' || a.type === 'expense') ? t + a.base : t, 0)).toFixed(2)}
+                      {settings?.currency || 'K'}{(coa.reduce((t, a) => (a.type === 'asset' || a.type === 'expense') ? t + a.base : t, 0)).toFixed(2)}
                     </td>
                     <td className="p-3 text-right text-emerald-600">
-                      {settings?.currency || '$'}{(coa.reduce((t, a) => (a.type !== 'asset' && a.type !== 'expense') ? t + a.base : t, 0)).toFixed(2)}
+                      {settings?.currency || 'K'}{(coa.reduce((t, a) => (a.type !== 'asset' && a.type !== 'expense') ? t + a.base : t, 0)).toFixed(2)}
                     </td>
                   </tr>
                 </tbody>
@@ -420,12 +420,12 @@ export const Accounting: React.FC = () => {
               {coa.filter(a => a.type === 'asset').map(a => (
                 <div key={a.code} className="flex justify-between text-slate-650 dark:text-slate-300 pl-4">
                   <span>{a.name}</span>
-                  <span>{settings?.currency || '$'}{a.base.toFixed(2)}</span>
+                  <span>{settings?.currency || 'K'}{a.base.toFixed(2)}</span>
                 </div>
               ))}
               <div className="flex justify-between font-extrabold text-sky-700 bg-sky-50 dark:bg-sky-950/40 p-2 rounded">
                 <span>Sum of Total Assets:</span>
-                <span>{settings?.currency || '$'}{(coa.filter(a => a.type === 'asset').reduce((t, c) => t + c.base, 0)).toFixed(2)}</span>
+                <span>{settings?.currency || 'K'}{(coa.filter(a => a.type === 'asset').reduce((t, c) => t + c.base, 0)).toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between font-bold border-b pb-1 pt-4 text-emerald-600">
@@ -435,20 +435,20 @@ export const Accounting: React.FC = () => {
               {coa.filter(a => a.type === 'liability' || a.type === 'equity').map(a => (
                 <div key={a.code} className="flex justify-between text-slate-650 dark:text-slate-305 pl-4">
                   <span>{a.name}</span>
-                  <span>{settings?.currency || '$'}{a.base.toFixed(2)}</span>
+                  <span>{settings?.currency || 'K'}{a.base.toFixed(2)}</span>
                 </div>
               ))}
               {/* Plus current operations result */}
               <div className="flex justify-between text-slate-650 pl-4 italic">
                 <span>Current operating income allocation</span>
                 <span className={operationalResult >= 0 ? 'text-sky-600' : 'text-red-500'}>
-                  {settings?.currency || '$'}{operationalResult.toFixed(2)}
+                  {settings?.currency || 'K'}{operationalResult.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between font-extrabold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 p-2 rounded">
                 <span>Sum of Liabilities & Equities:</span>
                 <span>
-                  {settings?.currency || '$'}{(
+                  {settings?.currency || 'K'}{(
                     coa.filter(a => a.type === 'liability' || a.type === 'equity').reduce((t, c) => t + c.base, 0) + operationalResult
                   ).toFixed(2)}
                 </span>

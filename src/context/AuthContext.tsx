@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { UserProfile, PharmacySettings, Branch } from '../types';
@@ -13,6 +13,7 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
   updateSettingsState: (newSettings: PharmacySettings) => void;
   refreshBranchesState: () => Promise<void>;
+  logoutUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -139,6 +140,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await fetchBranches();
   };
 
+  const logoutUser = async () => {
+    await signOut(auth);
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentFirebaseUser) => {
       setLoading(true);
@@ -168,7 +173,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loading, 
       refreshProfile, 
       updateSettingsState,
-      refreshBranchesState
+      refreshBranchesState,
+      logoutUser
     }}>
       {children}
     </AuthContext.Provider>

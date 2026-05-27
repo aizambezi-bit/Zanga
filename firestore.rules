@@ -12,11 +12,6 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Simple id verification
-    function isValidId(id) {
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
-    }
-
     // Safe lookup helper to avoid crash when user record doesn't exist yet
     function userExists() {
       return exists(/databases/$(database)/documents/users/$(request.auth.uid));
@@ -61,8 +56,6 @@ service cloud.firestore {
       allow get: if isSignedIn() && (isAdmin() || request.auth.uid == uid);
       allow list: if isSignedIn() && (isAdmin() || (userExists() && getUserRole() == 'manager' && resource.data.branchId == getUserBranchId()));
       
-      // Auto register the bootstrapped admin, or let admins add profiles.
-      // Non-admins can sign up if their profile record doesn't exist, assigning themselves a lower role initially as cashier.
       allow create: if isSignedIn() && (
         isAdmin() || 
         (request.auth.uid == uid && (
@@ -92,7 +85,7 @@ service cloud.firestore {
       allow get: if isSignedIn() && (isAdmin() || resource.data.branchId == getUserBranchId());
       allow list: if isSignedIn() && (isAdmin() || resource.data.branchId == getUserBranchId());
       allow create: if isSignedIn() && (isAdmin() || (isManager() && request.resource.data.branchId == getUserBranchId()));
-      allow update: if isSignedIn() && (isAdmin() || (isManager() && resource.data.branchId == getUserBranchId() && request.resource.data.branchId == getUserBranchId()));
+      allow update: if isSignedIn() && (isAdmin() || isManager());
       allow delete: if isAdmin();
     }
 
@@ -102,9 +95,14 @@ service cloud.firestore {
       allow list: if isSignedIn() && (isAdmin() || resource.data.branchId == getUserBranchId());
       allow create: if isSignedIn() && (isAdmin() || (isCashier() && request.resource.data.branchId == getUserBranchId()));
       
-      // Sales are final and historically non-mutable, only admins can adjust metadata
       allow update: if isAdmin();
       allow delete: if false;
+    }
+
+    // --- STOCK MOVEMENTS ---
+    match /stockMovements/{movementId} {
+      allow list, get: if isSignedIn() && (isAdmin() || resource.data.branchId == getUserBranchId());
+      allow create: if isSignedIn() && (isAdmin() || isCashier());
     }
 
     // --- INTER-BRANCH TRANSFER PERMISSIONS ---
@@ -113,10 +111,9 @@ service cloud.firestore {
       allow list: if isSignedIn() && (isAdmin() || resource.data.sourceBranchId == getUserBranchId() || resource.data.targetBranchId == getUserBranchId());
       allow create: if isSignedIn() && (isAdmin() || (isCashier() && request.resource.data.sourceBranchId == getUserBranchId()));
       
-      // Managers of either receiving or dispatching branches can approve/reject/modify
       allow update: if isSignedIn() && (
         isAdmin() || 
-        (isManager() && (resource.data.targetBranchId == getUserBranchId() || resource.data.sourceBranchId == getUserBranchId()))
+        (isCashier() && (resource.data.targetBranchId == getUserBranchId() || resource.data.sourceBranchId == getUserBranchId()))
       );
       allow delete: if isAdmin();
     }

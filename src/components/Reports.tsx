@@ -204,7 +204,7 @@ export const Reports: React.FC = () => {
         <div className="p-4 bg-white border rounded-xl shadow-sm dark:bg-slate-900 dark:border-slate-800">
           <span className="text-[10px] text-slate-450 font-bold uppercase tracking-wider block">Total Sales value</span>
           <h2 className="text-xl font-black text-slate-850 mt-1 dark:text-white">
-            {settings?.currency || '$'}{totalSalesRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {settings?.currency || 'K'}{totalSalesRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </h2>
           <span className="text-[10px] text-slate-450 mt-1 block">In range selected</span>
         </div>
@@ -212,7 +212,7 @@ export const Reports: React.FC = () => {
         <div className="p-4 bg-white border rounded-xl shadow-sm dark:bg-slate-900 dark:border-slate-800">
           <span className="text-[10px] text-slate-450 font-bold uppercase tracking-wider block">Average Transaction ticket</span>
           <h2 className="text-xl font-black text-sky-600 mt-1 dark:text-sky-400">
-            {settings?.currency || '$'}{averageTicketSize.toFixed(2)}
+            {settings?.currency || 'K'}{averageTicketSize.toFixed(2)}
           </h2>
           <span className="text-[10px] text-slate-450 mt-1 block">From over {totalTxCount} checkouts</span>
         </div>
@@ -220,7 +220,7 @@ export const Reports: React.FC = () => {
         <div className="p-4 bg-white border rounded-xl shadow-sm dark:bg-slate-900 dark:border-slate-800">
           <span className="text-[10px] text-slate-450 font-bold uppercase tracking-wider block">Valuation Cost Stock</span>
           <h2 className="text-xl font-black text-slate-800 mt-1 dark:text-white">
-            {settings?.currency || '$'}{totalCostValuation.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {settings?.currency || 'K'}{totalCostValuation.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </h2>
           <span className="text-[10px] text-slate-450 mt-1 block">Value of stock on shelves</span>
         </div>
@@ -228,9 +228,9 @@ export const Reports: React.FC = () => {
         <div className="p-4 bg-white border rounded-xl shadow-sm dark:bg-slate-900 dark:border-slate-800">
           <span className="text-[10px] text-slate-450 font-bold uppercase tracking-wider block">Retail Asset value</span>
           <h2 className="text-xl font-black text-emerald-600 mt-1">
-            {settings?.currency || '$'}{totalRetailValuation.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {settings?.currency || 'K'}{totalRetailValuation.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </h2>
-          <span className="text-[10px] text-emerald-500 font-bold mt-1 block">Gross profit potential: +{settings?.currency || '$'}{potentialGrossMargin.toFixed(0)}</span>
+          <span className="text-[10px] text-emerald-500 font-bold mt-1 block">Gross profit potential: +{settings?.currency || 'K'}{potentialGrossMargin.toFixed(0)}</span>
         </div>
       </div>
 
@@ -283,7 +283,7 @@ export const Reports: React.FC = () => {
                 <div key={idx} className="flex justify-between items-center py-3.5 text-xs">
                   <div>
                     <span className="font-bold text-slate-800 dark:text-slate-100 block max-w-[140px] truncate">{p.name}</span>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">Sum retail: {settings?.currency || '$'}{p.value.toFixed(2)}</span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Sum retail: {settings?.currency || 'K'}{p.value.toFixed(2)}</span>
                   </div>
                   <span className="px-2.5 py-1 bg-sky-50 text-sky-850 font-black rounded-lg text-xs dark:bg-sky-950/40 dark:text-sky-305">
                     {p.qty} units

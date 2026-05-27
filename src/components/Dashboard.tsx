@@ -211,6 +211,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         )}
       </div>
 
+      {/* Low Stock Alert Banner */}
+      {lowStockItems.length > 0 && (
+        <div className="bg-rose-600 dark:bg-rose-900/50 p-6 rounded-3xl flex items-center justify-between text-white shadow-lg bento-card">
+          <div className="flex items-center gap-4">
+            <div className="bg-white/20 p-3 rounded-2xl">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm">Low Stock Alert Detected</h3>
+              <p className="text-xs opacity-90 mt-0.5">There are {lowStockItems.length} products currently below reorder levels or expiring soon in this branch.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => onNavigate?.('inventory')}
+            className="bg-white text-rose-700 px-6 py-3 rounded-2xl text-xs font-bold hover:bg-rose-50 transition shadow-sm"
+          >
+            Manage Inventory
+          </button>
+        </div>
+      )}
+
       {/* Real-time Data Seeding Sandbox Banner (Visible to Admins) */}
       {profile?.role === 'admin' && (
         <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950/40 border border-teal-500/20 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden">
