@@ -64,31 +64,34 @@ service cloud.firestore {
     // --- SCHEMA VALIDATION BLUEPRINTS ---
     function isValidUser(data) {
       return data.keys().hasAll(['displayName', 'email', 'role', 'branchId', 'active', 'createdAt', 'updatedAt'])
-        && data.keys().size() >= 7 && data.keys().size() <= 9
+        && data.keys().size() >= 7 && data.keys().size() <= 10
         && data.displayName is string && data.displayName.size() <= 100
         && data.email is string && data.email.size() <= 100
         && data.role is string && (data.role == 'admin' || data.role == 'manager' || data.role == 'assistant' || data.role == 'cashier')
         && data.branchId is string && data.branchId.size() <= 100
         && data.active is bool
         && data.createdAt is string && data.createdAt.size() <= 50
-        && data.updatedAt is string && data.updatedAt.size() <= 50;
+        && data.updatedAt is string && data.updatedAt.size() <= 50
+        && (!data.keys().contains('inviteCode') || (data.inviteCode is string && data.inviteCode.size() <= 100))
+        && (!data.keys().contains('uid') || (data.uid is string && data.uid.size() <= 100));
     }
 
     function isValidBranch(data) {
       return data.keys().hasAll(['name', 'code', 'address', 'phone', 'status', 'createdAt', 'updatedAt'])
-        && data.keys().size() == 7
+        && data.keys().size() >= 7 && data.keys().size() <= 9
         && data.name is string && data.name.size() <= 100
         && data.code is string && data.code.size() <= 50
         && data.address is string && data.address.size() <= 200
         && data.phone is string && data.phone.size() <= 50
         && data.status is string && (data.status == 'active' || data.status == 'inactive')
         && data.createdAt is string && data.createdAt.size() <= 50
-        && data.updatedAt is string && data.updatedAt.size() <= 50;
+        && data.updatedAt is string && data.updatedAt.size() <= 50
+        && (!data.keys().contains('id') || (data.id is string && data.id.size() <= 150));
     }
 
     function isValidProduct(data) {
       return data.keys().hasAll(['name', 'SKU', 'barcode', 'category', 'unitPrice', 'costPrice', 'stockQty', 'reorderLevel', 'expiryDate', 'batchNumber', 'branchId', 'status', 'createdAt', 'updatedAt'])
-        && data.keys().size() == 14
+        && data.keys().size() >= 14 && data.keys().size() <= 16
         && data.name is string && data.name.size() <= 150
         && data.SKU is string && data.SKU.size() <= 50
         && data.barcode is string && data.barcode.size() <= 50
@@ -102,12 +105,13 @@ service cloud.firestore {
         && data.branchId is string && data.branchId.size() <= 50
         && data.status is string && (data.status == 'active' || data.status == 'inactive')
         && data.createdAt is string && data.createdAt.size() <= 50
-        && data.updatedAt is string && data.updatedAt.size() <= 50;
+        && data.updatedAt is string && data.updatedAt.size() <= 50
+        && (!data.keys().contains('id') || (data.id is string && data.id.size() <= 150));
     }
 
     function isValidSale(data) {
       return data.keys().hasAll(['saleId', 'branchId', 'cashierId', 'cashierName', 'items', 'subtotal', 'discount', 'tax', 'total', 'paymentMethod', 'status', 'createdAt'])
-        && data.keys().size() >= 12 && data.keys().size() <= 13
+        && data.keys().size() >= 12 && data.keys().size() <= 16
         && data.saleId is string && data.saleId.size() <= 100
         && data.branchId is string && data.branchId.size() <= 100
         && data.cashierId is string && data.cashierId.size() <= 100
@@ -118,13 +122,15 @@ service cloud.firestore {
         && (data.tax is number || data.tax is int)
         && (data.total is number || data.total is int)
         && data.paymentMethod is string && data.paymentMethod.size() <= 100
-        && data.status is string && data.status.size() <= 50
-        && data.createdAt is string && data.createdAt.size() <= 50;
+        && data.status is string && (data.status == 'completed' || data.status == 'refunded' || data.status == 'voided')
+        && data.createdAt is string && data.createdAt.size() <= 50
+        && (!data.keys().contains('id') || (data.id is string && data.id.size() <= 150))
+        && (!data.keys().contains('paymentDetails') || (data.paymentDetails is map));
     }
 
     function isValidTransfer(data) {
       return data.keys().hasAll(['sourceBranchId', 'targetBranchId', 'requestedBy', 'requestedByName', 'items', 'status', 'createdAt', 'updatedAt'])
-        && data.keys().size() >= 8 && data.keys().size() <= 12
+        && data.keys().size() >= 8 && data.keys().size() <= 14
         && data.sourceBranchId is string && data.sourceBranchId.size() <= 100
         && data.targetBranchId is string && data.targetBranchId.size() <= 100
         && data.requestedBy is string && data.requestedBy.size() <= 100
@@ -137,7 +143,7 @@ service cloud.firestore {
 
     function isValidAccountingEntry(data) {
       return data.keys().hasAll(['type', 'category', 'amount', 'description', 'branchId', 'date', 'createdAt'])
-        && data.keys().size() >= 7 && data.keys().size() <= 9
+        && data.keys().size() >= 7 && data.keys().size() <= 10
         && data.type is string && (data.type == 'expense' || data.type == 'revenue' || data.type == 'ledger' || data.type == 'journal')
         && data.category is string && data.category.size() <= 100
         && (data.amount is number || data.amount is int)
@@ -149,13 +155,17 @@ service cloud.firestore {
 
     function isValidSetting(data) {
       return data.keys().hasAll(['pharmacyName', 'currency', 'taxRate', 'receiptFooter', 'invoicePrefix', 'lowStockThreshold'])
-        && data.keys().size() >= 6 && data.keys().size() <= 8
+        && data.keys().size() >= 6 && data.keys().size() <= 12
         && data.pharmacyName is string && data.pharmacyName.size() <= 150
         && data.currency is string && data.currency.size() <= 10
         && (data.taxRate is number || data.taxRate is int)
         && data.receiptFooter is string && data.receiptFooter.size() <= 500
         && data.invoicePrefix is string && data.invoicePrefix.size() <= 50
-        && (data.lowStockThreshold is number || data.lowStockThreshold is int);
+        && (data.lowStockThreshold is number || data.lowStockThreshold is int)
+        && (!data.keys().contains('address') || (data.address is string && data.address.size() <= 200))
+        && (!data.keys().contains('logo') || (data.logo is string && data.logo.size() <= 100))
+        && (!data.keys().contains('logoUrl') || (data.logoUrl is string && data.logoUrl.size() <= 500))
+        && (!data.keys().contains('onboarded') || data.onboarded is bool);
     }
 
     function isValidStockMovement(data) {
@@ -203,7 +213,7 @@ service cloud.firestore {
         isAdmin() || 
         (request.auth.uid == uid && (
           // Action 1: Onboarding with Invite claim
-          (incoming().diff(existing()).affectedKeys().hasOnly(['role', 'branchId', 'inviteCode', 'updatedAt']) && (
+          (incoming().diff(existing()).affectedKeys().hasOnly(['role', 'branchId', 'active', 'inviteCode', 'updatedAt']) && (
             incoming().inviteCode != null &&
             exists(/databases/$(database)/documents/invites/$(incoming().inviteCode)) &&
             get(/databases/$(database)/documents/invites/$(incoming().inviteCode)).data.active == true &&
