@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { loginWithGoogle, auth } from '../lib/firebase';
+import { loginWithGoogle, auth, db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import { ShieldAlert, LogIn, PlusCircle } from 'lucide-react';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { UserProfile } from '../types';
 
 export const Login: React.FC<{ inline?: boolean }> = ({ inline = false }) => {
   const { loading } = useAuth();
@@ -42,8 +44,27 @@ export const Login: React.FC<{ inline?: boolean }> = ({ inline = false }) => {
           setAuthLoading(false);
           return;
         }
-        await createUserWithEmailAndPassword(auth, email, password);
-        // Auth state observer in AuthContext handles saving the profile object
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName });
+        
+        // Check if settings/global doc exists to determine if this is the first registration
+        const settingsRef = doc(db, 'settings', 'global');
+        const settingsSnap = await getDoc(settingsRef);
+        const isFirstUser = !settingsSnap.exists();
+        const isDefaultAdmin = email === 'aizambezi@gmail.com' || isFirstUser;
+        
+        const initialProfile: UserProfile = {
+          uid: userCredential.user.uid,
+          displayName: displayName,
+          email: email,
+          role: isDefaultAdmin ? 'admin' : 'cashier',
+          branchId: 'b-main', // placeholder initially
+          active: isDefaultAdmin ? true : false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        await setDoc(doc(db, 'users', userCredential.user.uid), initialProfile);
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -95,7 +116,7 @@ export const Login: React.FC<{ inline?: boolean }> = ({ inline = false }) => {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Dr. Mercy Phiri"
-              className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-emerald-500"
+              className="w-full rounded-xl border border-slate-300 bg-white dark:bg-white px-3.5 py-2.5 text-sm text-black dark:text-black placeholder-slate-400 outline-none transition focus:border-emerald-500"
             />
           </div>
         )}
@@ -110,7 +131,7 @@ export const Login: React.FC<{ inline?: boolean }> = ({ inline = false }) => {
             required
             onChange={(e) => setEmail(e.target.value)}
             placeholder="operator@zambezi.com"
-            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-emerald-500"
+            className="w-full rounded-xl border border-slate-300 bg-white dark:bg-white px-3.5 py-2.5 text-sm text-black dark:text-black placeholder-slate-400 outline-none transition focus:border-emerald-500"
           />
         </div>
 
@@ -124,7 +145,7 @@ export const Login: React.FC<{ inline?: boolean }> = ({ inline = false }) => {
             required
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-emerald-500"
+            className="w-full rounded-xl border border-slate-300 bg-white dark:bg-white px-3.5 py-2.5 text-sm text-black dark:text-black placeholder-slate-400 outline-none transition focus:border-emerald-500"
           />
         </div>
 

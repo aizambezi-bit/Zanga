@@ -60,7 +60,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getProfileForUser = async (firebaseUser: FirebaseUser) => {
     try {
       const userRef = doc(db, 'users', firebaseUser.uid);
-      const docSnap = await getDoc(userRef);
+      let docSnap = await getDoc(userRef);
+
+      // Defend against signup race condition: poll to wait for the user document if registered via Email/Password
+      if (!docSnap.exists()) {
+        const startTime = Date.now();
+        while (Date.now() - startTime < 3000) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          docSnap = await getDoc(userRef);
+          if (docSnap.exists()) {
+            break;
+          }
+        }
+      }
 
       if (docSnap.exists()) {
         setProfile(docSnap.data() as UserProfile);
