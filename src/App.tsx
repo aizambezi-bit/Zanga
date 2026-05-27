@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LandingPage } from './components/LandingPage';
+import { Onboarding } from './components/Onboarding';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { POS } from './components/POS';
@@ -13,7 +14,7 @@ import { BranchesManagement } from './components/Branches';
 import { Settings } from './components/Settings';
 
 const AppContent: React.FC = () => {
-  const { profile, loading } = useAuth();
+  const { profile, settings, loading } = useAuth();
   
   // Navigation trigger
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -30,6 +31,11 @@ const AppContent: React.FC = () => {
 
   if (!profile) {
     return <LandingPage />;
+  }
+
+  // Route to onboarding flow if pharmacy instance is missing settings or profile is inactive
+  if (!settings || !settings.onboarded || !profile.active) {
+    return <Onboarding />;
   }
 
   // Render subcomponents according to navigation selection
@@ -59,7 +65,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen bg-slate-950 text-slate-100 transition-colors dark">
       
       {/* Dynamic Navigation Drawer Sidebar */}
       <Sidebar 

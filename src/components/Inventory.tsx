@@ -358,7 +358,10 @@ export const Inventory: React.FC = () => {
                   const isNearExp = new Date(p.expiryDate) < new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
 
                   return (
-                    <tr key={p.id} className="hover:bg-slate-50/65 dark:hover:bg-slate-950/40 transition">
+                    <tr 
+                      key={p.id} 
+                      className="even:bg-slate-50/40 dark:even:bg-slate-800/10 hover:bg-slate-100/55 dark:hover:bg-slate-800/30 transition-colors"
+                    >
                       <td className="p-4">
                         <div className="font-bold text-slate-900 dark:text-white">{p.name}</div>
                         <div className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">

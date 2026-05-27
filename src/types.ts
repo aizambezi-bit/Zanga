@@ -131,4 +131,7 @@ export interface PharmacySettings {
   lowStockThreshold: number;
   printerThermalWidth?: '80mm' | '58mm';
   themeColor?: string;
+  logoUrl?: string;
+  address?: string;
+  onboarded?: boolean;
 }

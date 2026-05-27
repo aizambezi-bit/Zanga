@@ -48,40 +48,9 @@ export async function seedCompleteSystem() {
       batch.set(ref, branch);
     });
 
-    // 2. SEED OPERATING EMPLOYEES / USERS
+    // 2. SEED OPERATING EMPLOYEES / USERS (Removed demo accounts as per request)
     const usersRef = collection(db, 'users');
-    const seededStaffs: UserProfile[] = [
-      {
-        uid: 'u-mercy',
-        displayName: 'Mercy Mwansa',
-        email: 'mercy@zambezi.com',
-        role: 'cashier',
-        branchId: 'b-main',
-        active: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        uid: 'u-bwalya',
-        displayName: 'Bwalya Kabwe',
-        email: 'bwalya@zambezi.com',
-        role: 'manager',
-        branchId: 'b-north',
-        active: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        uid: 'u-sibeso',
-        displayName: 'Dr. Sibeso Likando',
-        email: 'sibeso@zambezi.com',
-        role: 'assistant',
-        branchId: 'b-east',
-        active: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    ];
+    const seededStaffs: UserProfile[] = [];
 
     seededStaffs.forEach(staff => {
       const ref = doc(usersRef, staff.uid);
@@ -213,7 +182,7 @@ export async function seedCompleteSystem() {
     
     // Generate dates for the previous 7 days
     const salesHistory: Sale[] = [];
-    const clerks = ['Mercy Mwansa', 'Bwalya Kabwe', 'System Admin'];
+    const clerks = ['System Operator', 'System Admin'];
     const branchIds = ['b-main', 'b-north', 'b-east'];
 
     for (let i = 6; i >= 0; i--) {
@@ -264,7 +233,7 @@ export async function seedCompleteSystem() {
           id: saleId,
           saleId: `ZW-${saleDateStr.replace(/-/g, '')}-${s}`,
           branchId: branchIds[(i + s) % branchIds.length],
-          cashierId: s === 1 ? 'u-mercy' : 'aizambezi',
+          cashierId: 'system',
           cashierName: clerks[(i + s) % clerks.length],
           items,
           subtotal,
@@ -357,8 +326,8 @@ export async function seedCompleteSystem() {
         sourceBranchName: 'Central Plaza (HQ)',
         targetBranchId: 'b-north',
         targetBranchName: 'Northern Gate Clinic',
-        requestedBy: 'u-bwalya',
-        requestedByName: 'Bwalya Kabwe',
+        requestedBy: 'system',
+        requestedByName: 'System Operator',
         items: [
           {
             productId: 'b-main-AMX-500-01',
@@ -378,9 +347,9 @@ export async function seedCompleteSystem() {
         sourceBranchName: 'Central Plaza (HQ)',
         targetBranchId: 'b-east',
         targetBranchName: 'Eastern Gateway Depot',
-        requestedBy: 'u-sibeso',
-        requestedByName: 'Dr. Sibeso Likando',
-        approvedBy: 'aizambezi',
+        requestedBy: 'system',
+        requestedByName: 'System Operator',
+        approvedBy: 'system',
         approvedByName: 'System Admin',
         items: [
           {
@@ -423,6 +392,42 @@ export async function seedCompleteSystem() {
     return true;
   } catch (err: any) {
     console.error("Critical Failure seeding sandbox: ", err);
+    throw err;
+  }
+}
+
+export async function purgeAndSeedCompleteSystem(currentAdminUid?: string) {
+  try {
+    console.log("Starting a complete purge of database collections...");
+    
+    // List of collections we want to purge
+    const collectionsToPurge = ['sales', 'products', 'branches', 'transfers', 'accounting', 'users', 'stockMovements'];
+    
+    for (const colName of collectionsToPurge) {
+      const colRef = collection(db, colName);
+      const snap = await getDocs(colRef);
+      if (!snap.empty) {
+        const batch = writeBatch(db);
+        snap.docs.forEach(docSnap => {
+          // Keep current logged in admin user doc so they don't get broken on UI refresh
+          if (colName === 'users' && currentAdminUid && docSnap.id === currentAdminUid) {
+            console.log("Preserving logged in admin profile ID:", currentAdminUid);
+            return;
+          }
+          batch.delete(docSnap.ref);
+        });
+        await batch.commit();
+        console.log(`Successfully purged collection: ${colName}`);
+      }
+    }
+    
+    // Now seed with complete fresh system data
+    console.log("Calling database seeding after complete collection purge...");
+    await seedCompleteSystem();
+    
+    return true;
+  } catch (err: any) {
+    console.error("Failure in purgeAndSeedCompleteSystem: ", err);
     throw err;
   }
 }

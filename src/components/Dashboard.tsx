@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Product, Sale } from '../types';
-import { seedCompleteSystem } from '../utils/seeds';
+import { seedCompleteSystem, purgeAndSeedCompleteSystem } from '../utils/seeds';
 import { 
   DollarSign, 
   Package, 
@@ -44,6 +44,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [loading, setLoading] = useState(true);
 
   const [seeding, setSeeding] = useState(false);
+  const [purging, setPurging] = useState(false);
   const [seedSuccess, setSeedSuccess] = useState(false);
   const [seedError, setSeedError] = useState('');
 
@@ -60,6 +61,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       setSeedError(err?.message || String(err));
     } finally {
       setSeeding(false);
+    }
+  };
+
+  const handlePurgeAndSeed = async () => {
+    const doubleConfirm = confirm(
+      "💣 WARNING: THIS IS A TOTAL SYSTEM RESET!\n\nThis will completely purge all sales transactions, stock levels, branch transfers, ledger entries, and other user data permanently, and reseed the platform to a fresh base state.\n\nAre you absolutely sure you want to perform this wipe?"
+    );
+    if (!doubleConfirm) return;
+
+    setPurging(true);
+    setSeedError('');
+    setSeedSuccess(false);
+    try {
+      await purgeAndSeedCompleteSystem(profile?.uid);
+      setSeedSuccess(true);
+      setTimeout(() => setSeedSuccess(false), 5500);
+    } catch (err: any) {
+      console.error(err);
+      setSeedError(err?.message || "Verify administrative Firestore collection delete permissions - " + String(err));
+    } finally {
+      setPurging(false);
     }
   };
 
@@ -257,33 +279,53 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
 
           <div className="relative z-10 shrink-0 w-full md:w-auto">
-            <button
-              id="dashboard-seed-btn"
-              onClick={handleSeedSystem}
-              disabled={seeding}
-              className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-xs font-black transition-all ${
-                seedSuccess 
-                  ? 'bg-emerald-500 text-slate-950 font-black' 
-                  : 'bg-teal-500 hover:bg-teal-600 text-slate-950 shadow-lg shadow-teal-500/10 hover:shadow-teal-500/20 hover:scale-[1.01] cursor-pointer'
-              } disabled:opacity-50`}
-            >
-              {seeding ? (
-                <>
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  PROVISIONING SANDBOX...
-                </>
-              ) : seedSuccess ? (
-                <>
-                  <Check className="h-4 w-4 stroke-[3]" />
-                  MOCK DATA INSTALLED!
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" />
-                  SEED TEST SYSTEM DATA
-                </>
-              )}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handlePurgeAndSeed}
+                disabled={purging || seeding}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-xs font-black transition-all bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-600/10 hover:shadow-rose-600/20 hover:scale-[1.01] cursor-pointer disabled:opacity-50"
+              >
+                {purging ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    WIPING SYSTEM...
+                  </>
+                ) : (
+                  <>
+                    <Database className="h-4 w-4" />
+                    WIPE & START FRESH
+                  </>
+                )}
+              </button>
+
+              <button
+                id="dashboard-seed-btn"
+                onClick={handleSeedSystem}
+                disabled={seeding || purging}
+                className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-xs font-black transition-all ${
+                  seedSuccess && !purging
+                    ? 'bg-emerald-500 text-slate-950 font-black' 
+                    : 'bg-teal-500 hover:bg-teal-600 text-slate-950 shadow-lg shadow-teal-500/10 hover:shadow-teal-500/20 hover:scale-[1.01] cursor-pointer'
+                } disabled:opacity-50`}
+              >
+                {seeding ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    PROVISIONING SANDBOX...
+                  </>
+                ) : seedSuccess ? (
+                  <>
+                    <Check className="h-4 w-4 stroke-[3]" />
+                    MOCK DATA INSTALLED!
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    APPEND TEST DATA
+                  </>
+                )}
+              </button>
+            </div>
             {seedError && (
               <p className="text-[10px] text-red-500 mt-1.5 font-semibold text-center">{seedError}</p>
             )}

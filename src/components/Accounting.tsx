@@ -239,7 +239,10 @@ export const Accounting: React.FC = () => {
                 </thead>
                 <tbody className="divide-y text-slate-700 dark:text-slate-300 dark:divide-slate-800">
                   {coa.map(a => (
-                    <tr key={a.code} className="hover:bg-slate-50 dark:hover:bg-slate-950/20">
+                    <tr 
+                      key={a.code} 
+                      className="even:bg-slate-50/40 dark:even:bg-slate-800/10 hover:bg-slate-100/75 dark:hover:bg-slate-800/40 transition-colors"
+                    >
                       <td className="p-3 font-mono font-bold text-slate-500">{a.code}</td>
                       <td className="p-3 font-semibold">{a.name}</td>
                       <td className="p-3 uppercase font-bold text-[9px] text-slate-450">{a.type}</td>
@@ -274,7 +277,10 @@ export const Accounting: React.FC = () => {
                   {entries.map(e => {
                     const isRev = e.type === 'revenue';
                     return (
-                      <tr key={e.id} className="hover:bg-slate-50 dark:hover:bg-slate-950/20">
+                      <tr 
+                        key={e.id} 
+                        className="even:bg-slate-50/40 dark:even:bg-slate-800/10 hover:bg-slate-100/75 dark:hover:bg-slate-800/40 transition-colors"
+                      >
                         <td className="p-3 font-mono text-slate-400">{e.id.slice(-8).toUpperCase()}</td>
                         <td className="p-3">
                           <span className="font-semibold block">{e.category}</span>
@@ -376,7 +382,10 @@ export const Accounting: React.FC = () => {
                   {coa.map(a => {
                     const isDebitNode = a.type === 'asset' || a.type === 'expense';
                     return (
-                      <tr key={a.code} className="hover:bg-slate-50 dark:hover:bg-slate-950/20">
+                      <tr 
+                        key={a.code} 
+                        className="even:bg-slate-50/40 dark:even:bg-slate-800/10 hover:bg-slate-100/75 dark:hover:bg-slate-800/40 transition-colors"
+                      >
                         <td className="p-3 font-bold text-slate-500">{a.code}</td>
                         <td className="p-3 font-sans font-semibold">{a.name}</td>
                         <td className="p-3 text-right font-bold text-slate-800 dark:text-slate-100">

@@ -14,6 +14,7 @@ interface AuthContextType {
   updateSettingsState: (newSettings: PharmacySettings) => void;
   refreshBranchesState: () => Promise<void>;
   logoutUser: () => Promise<void>;
+  refreshSettingsState: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,26 +34,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (snap.exists()) {
         setSettings(snap.data() as PharmacySettings);
       } else {
-        const defaultSettings: PharmacySettings = {
-          pharmacyName: 'Zambezi Wellness Pharmacy',
-          logo: '💊',
-          currency: 'ZMW',
-          taxRate: 15, // 15% VAT standard
-          receiptFooter: 'Thank you for shopping with Zambezi Wellness!',
-          invoicePrefix: 'ZW-INV-',
-          lowStockThreshold: 10,
-          printerThermalWidth: '80mm',
-          themeColor: '#0ea5e9'
-        };
-        await setDoc(settingsRef, defaultSettings);
-        setSettings(defaultSettings);
+        setSettings(null);
       }
     } catch (err) {
       console.error('Error getting settings:', err);
     }
   };
 
-  // Helper to load branches and seed if empty
+  // Helper to load branches
   const fetchBranches = async () => {
     try {
       const branchesRef = collection(db, 'branches');
@@ -61,37 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const branchList = snap.docs.map(d => ({ id: d.id, ...d.data() })) as Branch[];
         setBranches(branchList);
       } else {
-        // Seed default branches
-        const batch = writeBatch(db);
-        const mainRef = doc(branchesRef, 'b-main');
-        const secondaryRef = doc(branchesRef, 'b-north');
-        
-        const mainBranch: Branch = {
-          id: 'b-main',
-          name: 'Central Plaza (HQ)',
-          code: 'MAIN',
-          address: '456 Independence Avenue, Lusaka',
-          phone: '+260 970 001122',
-          status: 'active',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        
-        const northBranch: Branch = {
-          id: 'b-north',
-          name: 'Northern Gate Clinic',
-          code: 'NGATE',
-          address: '12 Medical Way, Kitwe',
-          phone: '+260 960 334455',
-          status: 'active',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-
-        batch.set(mainRef, mainBranch);
-        batch.set(secondaryRef, northBranch);
-        await batch.commit();
-        setBranches([mainBranch, northBranch]);
+        setBranches([]);
       }
     } catch (err) {
       console.error('Error fetching branches:', err);
@@ -107,14 +66,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setProfile(docSnap.data() as UserProfile);
       } else {
         // Create initial profile
-        const isDefaultAdmin = firebaseUser.email === 'aizambezi@gmail.com';
+        // We check if settings/global doc exists. If it does not, this is the first workspace setup run, 
+        // which makes this registering user the administrator to avoid permission/access issues.
+        const settingsRef = doc(db, 'settings', 'global');
+        const settingsSnap = await getDoc(settingsRef);
+        const isFirstUser = !settingsSnap.exists();
+        const isDefaultAdmin = firebaseUser.email === 'aizambezi@gmail.com' || isFirstUser;
+        
         const initialProfile: UserProfile = {
           uid: firebaseUser.uid,
           displayName: firebaseUser.displayName || 'Pharmacy Operator',
           email: firebaseUser.email || '',
           role: isDefaultAdmin ? 'admin' : 'cashier',
-          branchId: 'b-main', // default branch
-          active: true,
+          branchId: 'b-main', // placeholder initially
+          active: isDefaultAdmin ? true : false,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -174,7 +139,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       refreshProfile, 
       updateSettingsState,
       refreshBranchesState,
-      logoutUser
+      logoutUser,
+      refreshSettingsState: fetchSettings
     }}>
       {children}
     </AuthContext.Provider>
