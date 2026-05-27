@@ -122,6 +122,40 @@
         "lowStockThreshold": { "type": "number" }
       },
       "required": ["pharmacyName", "currency", "taxRate", "receiptFooter", "invoicePrefix", "lowStockThreshold"]
+    },
+    "StockMovement": {
+      "title": "Stock Movement Log",
+      "description": "Log of stock quantity changes on products.",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "name": { "type": "string" },
+        "SKU": { "type": "string" },
+        "branchId": { "type": "string" },
+        "lastQty": { "type": "number" },
+        "changeQty": { "type": "number" },
+        "finalQty": { "type": "number" },
+        "reason": { "type": "string" },
+        "operator": { "type": "string" },
+        "operatorId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["productId", "name", "SKU", "branchId", "lastQty", "changeQty", "finalQty", "reason", "operator", "operatorId", "createdAt"]
+    },
+    "Invite": {
+      "title": "Staff Invite",
+      "description": "Invitation codes for staff registration in specific branches/roles.",
+      "type": "object",
+      "properties": {
+        "active": { "type": "boolean" },
+        "role": { "type": "string", "enum": ["admin", "manager", "assistant", "cashier"] },
+        "branchId": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "claimedBy": { "type": "string" },
+        "claimedAt": { "type": "string" }
+      },
+      "required": ["active", "role", "branchId", "createdBy", "createdAt"]
     }
   },
   "firestore": {
@@ -152,6 +186,14 @@
     "/settings/{docId}": {
       "schema": "Setting",
       "description": "Global config options"
+    },
+    "/stockMovements/{movementId}": {
+      "schema": "StockMovement",
+      "description": "History of inventory alterations and manual adjustments."
+    },
+    "/invites/{inviteId}": {
+      "schema": "Invite",
+      "description": "Store invitation codes for onboarding staff."
     }
   }
 }

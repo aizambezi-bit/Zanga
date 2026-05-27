@@ -15,6 +15,14 @@ export const Login: React.FC<{ inline?: boolean }> = ({ inline = false }) => {
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
 
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyHostname = () => {
+    navigator.clipboard.writeText(window.location.hostname);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const handleGoogleLogin = async () => {
     setErrorStatus(null);
     setAuthLoading(true);
@@ -22,7 +30,12 @@ export const Login: React.FC<{ inline?: boolean }> = ({ inline = false }) => {
       await loginWithGoogle();
     } catch (err: any) {
       console.error(err);
-      setErrorStatus(err?.message || 'Failed to authenticate via Google.');
+      const isAuthDomainErr = err?.message?.includes('unauthorized-domain') || err?.code === 'auth/unauthorized-domain';
+      if (isAuthDomainErr) {
+        setErrorStatus('auth/unauthorized-domain');
+      } else {
+        setErrorStatus(err?.message || 'Failed to authenticate via Google.');
+      }
     } finally {
       setAuthLoading(false);
     }
@@ -99,9 +112,58 @@ export const Login: React.FC<{ inline?: boolean }> = ({ inline = false }) => {
       </div>
 
       {errorStatus && (
-        <div className="mt-6 flex gap-2 items-start rounded-xl bg-red-100 p-3 text-xs md:text-sm text-red-600 dark:bg-red-950/20 dark:text-red-400 border border-red-200/20">
-          <ShieldAlert className="h-5 w-5 shrink-0" />
-          <div>{errorStatus}</div>
+        <div className="mt-6 flex gap-2.5 items-start rounded-2xl bg-red-50 dark:bg-red-950/20 p-4 text-xs md:text-sm text-red-600 dark:text-red-400 border border-slate-200 dark:border-slate-800/10 shadow-sm leading-relaxed">
+          <ShieldAlert className="h-5 w-5 shrink-0 text-red-500 mt-0.5" />
+          <div className="flex-grow min-w-0">
+            {errorStatus === 'auth/unauthorized-domain' ? (
+              <div className="space-y-3.5">
+                <div>
+                  <h4 className="font-extrabold text-[11px] tracking-wider uppercase text-red-700 dark:text-red-300">
+                    Firebase Authorized Domain Required
+                  </h4>
+                  <p className="mt-1 text-slate-600 dark:text-slate-300 text-xs">
+                    The currently loaded domain is not whitelisted by your Firebase Auth settings. This is standard for sandbox and Cloud Run previews.
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      Your Hostname
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCopyHostname}
+                      className="text-[10px] px-2 py-0.5 rounded bg-emerald-500 text-white font-bold hover:bg-emerald-600 active:bg-emerald-700 transition"
+                    >
+                      {copied ? 'Copied ✅' : 'Copy'}
+                    </button>
+                  </div>
+                  <div className="font-mono text-xs text-slate-800 dark:text-slate-300 select-all break-all font-semibold leading-none">
+                    {window.location.hostname}
+                  </div>
+                </div>
+
+                <div className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed space-y-1">
+                  <div className="font-bold text-slate-700 dark:text-slate-200">How to authorize:</div>
+                  <ol className="list-decimal pl-4 space-y-1">
+                    <li>Go to the <a href="https://console.firebase.google.com/" target="_blank" rel="noreferrer" className="text-emerald-500 dark:text-emerald-450 font-bold hover:underline">Firebase Console</a>.</li>
+                    <li>Select project ➔ Buy/Build ➔ <strong>Authentication</strong>.</li>
+                    <li>Go to the <strong>Settings</strong> tab ➔ <strong>Authorized Domains</strong> setting.</li>
+                    <li>Click <strong>Add domain</strong> and paste the copied hostname.</li>
+                  </ol>
+                </div>
+
+                <hr className="border-red-200/20 dark:border-red-950/40" />
+
+                <div className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                  ⚡ <strong>Tip:</strong> If you do not wish to configure this now, feel free to register or sign in using the <strong>Email & Password Form</strong> below! There is no whitelisting required for email authentication.
+                </div>
+              </div>
+            ) : (
+              <div className="font-medium text-xs md:text-sm">{errorStatus}</div>
+            )}
+          </div>
         </div>
       )}
 

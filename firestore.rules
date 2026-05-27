@@ -12,7 +12,6 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Safe lookup helper to avoid crash when user record doesn't exist yet
     function userExists() {
       return exists(/databases/$(database)/documents/users/$(request.auth.uid));
     }
@@ -38,7 +37,6 @@ service cloud.firestore {
       );
     }
 
-    // Matches if user has authorized roles or is the admin
     function isManager() {
       return isSignedIn() && userExists() && (getUserRole() == 'manager' || getUserRole() == 'admin');
     }
@@ -51,106 +49,276 @@ service cloud.firestore {
       return isSignedIn() && userExists() && (getUserRole() == 'cashier' || getUserRole() == 'assistant' || getUserRole() == 'manager' || getUserRole() == 'admin');
     }
 
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- SCHEMA VALIDATION BLUEPRINTS ---
+    function isValidUser(data) {
+      return data.keys().hasAll(['displayName', 'email', 'role', 'branchId', 'active', 'createdAt', 'updatedAt'])
+        && data.keys().size() >= 7 && data.keys().size() <= 9
+        && data.displayName is string && data.displayName.size() <= 100
+        && data.email is string && data.email.size() <= 100
+        && data.role is string && (data.role == 'admin' || data.role == 'manager' || data.role == 'assistant' || data.role == 'cashier')
+        && data.branchId is string && data.branchId.size() <= 100
+        && data.active is bool
+        && data.createdAt is string && data.createdAt.size() <= 50
+        && data.updatedAt is string && data.updatedAt.size() <= 50;
+    }
+
+    function isValidBranch(data) {
+      return data.keys().hasAll(['name', 'code', 'address', 'phone', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().size() == 7
+        && data.name is string && data.name.size() <= 100
+        && data.code is string && data.code.size() <= 50
+        && data.address is string && data.address.size() <= 200
+        && data.phone is string && data.phone.size() <= 50
+        && data.status is string && (data.status == 'active' || data.status == 'inactive')
+        && data.createdAt is string && data.createdAt.size() <= 50
+        && data.updatedAt is string && data.updatedAt.size() <= 50;
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll(['name', 'SKU', 'barcode', 'category', 'unitPrice', 'costPrice', 'stockQty', 'reorderLevel', 'expiryDate', 'batchNumber', 'branchId', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().size() == 14
+        && data.name is string && data.name.size() <= 150
+        && data.SKU is string && data.SKU.size() <= 50
+        && data.barcode is string && data.barcode.size() <= 50
+        && data.category is string && data.category.size() <= 100
+        && (data.unitPrice is number || data.unitPrice is int)
+        && (data.costPrice is number || data.costPrice is int)
+        && (data.stockQty is number || data.stockQty is int)
+        && (data.reorderLevel is number || data.reorderLevel is int)
+        && data.expiryDate is string && data.expiryDate.size() <= 50
+        && data.batchNumber is string && data.batchNumber.size() <= 50
+        && data.branchId is string && data.branchId.size() <= 50
+        && data.status is string && (data.status == 'active' || data.status == 'inactive')
+        && data.createdAt is string && data.createdAt.size() <= 50
+        && data.updatedAt is string && data.updatedAt.size() <= 50;
+    }
+
+    function isValidSale(data) {
+      return data.keys().hasAll(['saleId', 'branchId', 'cashierId', 'cashierName', 'items', 'subtotal', 'discount', 'tax', 'total', 'paymentMethod', 'status', 'createdAt'])
+        && data.keys().size() >= 12 && data.keys().size() <= 13
+        && data.saleId is string && data.saleId.size() <= 100
+        && data.branchId is string && data.branchId.size() <= 100
+        && data.cashierId is string && data.cashierId.size() <= 100
+        && data.cashierName is string && data.cashierName.size() <= 100
+        && data.items is list && data.items.size() <= 100
+        && (data.subtotal is number || data.subtotal is int)
+        && (data.discount is number || data.discount is int)
+        && (data.tax is number || data.tax is int)
+        && (data.total is number || data.total is int)
+        && data.paymentMethod is string && data.paymentMethod.size() <= 100
+        && data.status is string && data.status.size() <= 50
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidTransfer(data) {
+      return data.keys().hasAll(['sourceBranchId', 'targetBranchId', 'requestedBy', 'requestedByName', 'items', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().size() >= 8 && data.keys().size() <= 12
+        && data.sourceBranchId is string && data.sourceBranchId.size() <= 100
+        && data.targetBranchId is string && data.targetBranchId.size() <= 100
+        && data.requestedBy is string && data.requestedBy.size() <= 100
+        && data.requestedByName is string && data.requestedByName.size() <= 100
+        && data.items is list && data.items.size() <= 100
+        && data.status is string && (data.status == 'pending' || data.status == 'approved' || data.status == 'rejected')
+        && data.createdAt is string && data.createdAt.size() <= 50
+        && data.updatedAt is string && data.updatedAt.size() <= 50;
+    }
+
+    function isValidAccountingEntry(data) {
+      return data.keys().hasAll(['type', 'category', 'amount', 'description', 'branchId', 'date', 'createdAt'])
+        && data.keys().size() >= 7 && data.keys().size() <= 9
+        && data.type is string && (data.type == 'expense' || data.type == 'revenue' || data.type == 'ledger' || data.type == 'journal')
+        && data.category is string && data.category.size() <= 100
+        && (data.amount is number || data.amount is int)
+        && data.description is string && data.description.size() <= 500
+        && data.branchId is string && data.branchId.size() <= 100
+        && data.date is string && data.date.size() <= 50
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidSetting(data) {
+      return data.keys().hasAll(['pharmacyName', 'currency', 'taxRate', 'receiptFooter', 'invoicePrefix', 'lowStockThreshold'])
+        && data.keys().size() >= 6 && data.keys().size() <= 8
+        && data.pharmacyName is string && data.pharmacyName.size() <= 150
+        && data.currency is string && data.currency.size() <= 10
+        && (data.taxRate is number || data.taxRate is int)
+        && data.receiptFooter is string && data.receiptFooter.size() <= 500
+        && data.invoicePrefix is string && data.invoicePrefix.size() <= 50
+        && (data.lowStockThreshold is number || data.lowStockThreshold is int);
+    }
+
+    function isValidStockMovement(data) {
+      return data.keys().hasAll(['productId', 'name', 'SKU', 'branchId', 'lastQty', 'changeQty', 'finalQty', 'reason', 'operator', 'operatorId', 'createdAt'])
+        && data.keys().size() == 11
+        && data.productId is string && data.productId.size() <= 100
+        && data.name is string && data.name.size() <= 150
+        && data.SKU is string && data.SKU.size() <= 100
+        && data.branchId is string && data.branchId.size() <= 100
+        && (data.lastQty is number || data.lastQty is int)
+        && (data.changeQty is number || data.changeQty is int)
+        && (data.finalQty is number || data.finalQty is int)
+        && data.reason is string && data.reason.size() <= 500
+        && data.operator is string && data.operator.size() <= 100
+        && data.operatorId is string && data.operatorId.size() <= 100
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidInvite(data) {
+      return data.keys().hasAll(['active', 'role', 'branchId', 'createdBy', 'createdAt'])
+        && data.keys().size() >= 5 && data.keys().size() <= 7
+        && data.active is bool
+        && data.role is string && (data.role == 'admin' || data.role == 'manager' || data.role == 'assistant' || data.role == 'cashier')
+        && data.branchId is string && data.branchId.size() <= 100
+        && data.createdBy is string && data.createdBy.size() <= 100
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+
     // --- USER ACCOUNT PERMISSIONS ---
     match /users/{uid} {
       allow get: if isSignedIn() && (isAdmin() || request.auth.uid == uid);
       allow list: if isSignedIn() && (isAdmin() || (userExists() && getUserRole() == 'manager' && resource.data.branchId == getUserBranchId()));
       
-      allow create: if isSignedIn() && (
+      allow create: if isSignedIn() && isValidUser(incoming()) && (
         isAdmin() || 
         (request.auth.uid == uid && (
           request.auth.token.email == 'aizambezi@gmail.com' || 
-          (!userExists() && request.resource.data.role == 'cashier') ||
-          (!exists(/databases/$(database)/documents/settings/global) && request.resource.data.role == 'admin')
+          (!userExists() && incoming().role == 'cashier') ||
+          (!exists(/databases/$(database)/documents/settings/global) && incoming().role == 'admin')
         ))
       );
       
-      allow update: if isSignedIn() && (
+      allow update: if isSignedIn() && isValidUser(incoming()) && (
         isAdmin() || 
         (request.auth.uid == uid && (
-          (request.resource.data.role == resource.data.role && request.resource.data.branchId == resource.data.branchId) ||
-          (
-            request.resource.data.inviteCode != null &&
-            exists(/databases/$(database)/documents/invites/$(request.resource.data.inviteCode)) &&
-            get(/databases/$(database)/documents/invites/$(request.resource.data.inviteCode)).data.active == true &&
-            get(/databases/$(database)/documents/invites/$(request.resource.data.inviteCode)).data.role == request.resource.data.role &&
-            get(/databases/$(database)/documents/invites/$(request.resource.data.inviteCode)).data.branchId == request.resource.data.branchId
-          )
+          // Action 1: Onboarding with Invite claim
+          (incoming().diff(existing()).affectedKeys().hasOnly(['role', 'branchId', 'inviteCode', 'updatedAt']) && (
+            incoming().inviteCode != null &&
+            exists(/databases/$(database)/documents/invites/$(incoming().inviteCode)) &&
+            get(/databases/$(database)/documents/invites/$(incoming().inviteCode)).data.active == true &&
+            get(/databases/$(database)/documents/invites/$(incoming().inviteCode)).data.role == incoming().role &&
+            get(/databases/$(database)/documents/invites/$(incoming().inviteCode)).data.branchId == incoming().branchId
+          )) ||
+          // Action 2: Update display name / generic details (cannot change role or branchId)
+          (incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'updatedAt', 'active', 'email']) &&
+           incoming().role == existing().role &&
+           incoming().branchId == existing().branchId)
         ))
       );
       
       allow delete: if isAdmin();
     }
+
 
     // --- STAFF INVITATION PERMISSIONS ---
     match /invites/{inviteId} {
       allow get: if isSignedIn();
-      allow list: if isSignedIn() && isAdmin();
-      allow create: if isSignedIn() && isAdmin();
-      allow update: if isSignedIn() && (
+      allow list: if isSignedIn() && (isAdmin() || isManager());
+      allow create: if isSignedIn() && isValidInvite(incoming()) && (isAdmin() || isManager());
+      allow update: if isSignedIn() && isValidInvite(incoming()) && (
         isAdmin() ||
-        (resource.data.active == true && request.resource.data.active == false && request.resource.data.claimedBy == request.auth.uid)
+        (incoming().diff(existing()).affectedKeys().hasOnly(['active', 'claimedBy', 'claimedAt']) &&
+         existing().active == true &&
+         incoming().active == false &&
+         incoming().claimedBy == request.auth.uid)
       );
       allow delete: if isAdmin();
     }
 
+
     // --- BRANCH PERMISSIONS ---
     match /branches/{branchId} {
       allow read: if isSignedIn();
-      allow write: if isAdmin();
+      allow create, update: if isAdmin() && isValidBranch(incoming());
+      allow delete: if isAdmin();
     }
+
 
     // --- PRODUCT / MEDICATION PERMISSIONS ---
     match /products/{productId} {
       allow get: if isSignedIn() && (isAdmin() || resource.data.branchId == getUserBranchId());
       allow list: if isSignedIn() && (isAdmin() || resource.data.branchId == getUserBranchId());
-      allow create: if isSignedIn() && (isAdmin() || (isManager() && request.resource.data.branchId == getUserBranchId()));
-      allow update: if isSignedIn() && (isAdmin() || isManager());
+      allow create: if isSignedIn() && isValidProduct(incoming()) && (isAdmin() || (isManager() && incoming().branchId == getUserBranchId()));
+      
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        (isValidProduct(incoming()) && (
+          isManager() ||
+          (isCashier() && (
+            incoming().diff(existing()).affectedKeys().hasOnly(['stockQty', 'updatedAt']) && (
+              incoming().branchId == getUserBranchId() || 
+              existing().branchId == getUserBranchId() ||
+              getUserRole() == 'assistant' || getUserRole() == 'manager'
+            )
+          ))
+        ))
+      );
+      
       allow delete: if isAdmin();
     }
+
 
     // --- SALES PERMISSIONS (POS) ---
     match /sales/{saleId} {
       allow get: if isSignedIn() && (isAdmin() || resource.data.branchId == getUserBranchId());
       allow list: if isSignedIn() && (isAdmin() || resource.data.branchId == getUserBranchId());
-      allow create: if isSignedIn() && (isAdmin() || (isCashier() && request.resource.data.branchId == getUserBranchId()));
-      
+      allow create: if isSignedIn() && isValidSale(incoming()) && (isAdmin() || (isCashier() && incoming().branchId == getUserBranchId()));
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
+
     // --- STOCK MOVEMENTS ---
     match /stockMovements/{movementId} {
       allow list, get: if isSignedIn() && (isAdmin() || resource.data.branchId == getUserBranchId());
-      allow create: if isSignedIn() && (isAdmin() || isCashier());
-      allow delete, update: if isAdmin();
+      allow create: if isSignedIn() && isValidStockMovement(incoming()) && (isAdmin() || (isCashier() && incoming().branchId == getUserBranchId()));
+      allow update, delete: if isAdmin();
     }
+
 
     // --- INTER-BRANCH TRANSFER PERMISSIONS ---
     match /transfers/{transferId} {
       allow get: if isSignedIn() && (isAdmin() || resource.data.sourceBranchId == getUserBranchId() || resource.data.targetBranchId == getUserBranchId());
       allow list: if isSignedIn() && (isAdmin() || resource.data.sourceBranchId == getUserBranchId() || resource.data.targetBranchId == getUserBranchId());
-      allow create: if isSignedIn() && (isAdmin() || (isCashier() && request.resource.data.sourceBranchId == getUserBranchId()));
+      allow create: if isSignedIn() && isValidTransfer(incoming()) && (isAdmin() || (isCashier() && incoming().sourceBranchId == getUserBranchId()));
       
       allow update: if isSignedIn() && (
         isAdmin() || 
-        (isCashier() && (resource.data.targetBranchId == getUserBranchId() || resource.data.sourceBranchId == getUserBranchId()))
+        (isValidTransfer(incoming()) && isCashier() && (
+          // Action: Approve or Reject transfer
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'approvedBy', 'approvedByName', 'comments', 'updatedAt']) &&
+          (existing().targetBranchId == getUserBranchId() || existing().sourceBranchId == getUserBranchId())
+        ))
       );
       allow delete: if isAdmin();
     }
+
 
     // --- ACCOUNTING LEDGER PERMISSIONS ---
     match /accounting/{docId} {
       allow get: if isSignedIn() && (isAdmin() || resource.data.branchId == getUserBranchId());
       allow list: if isSignedIn() && (isAdmin() || (isManager() && resource.data.branchId == getUserBranchId()));
-      allow create: if isSignedIn() && (isAdmin() || (isCashier() && request.resource.data.branchId == getUserBranchId()));
+      allow create: if isSignedIn() && isValidAccountingEntry(incoming()) && (isAdmin() || (isCashier() && incoming().branchId == getUserBranchId()));
       allow update, delete: if isAdmin();
     }
+
 
     // --- PHARMACY SETTINGS PERMISSIONS ---
     match /settings/{docId} {
       allow read: if isSignedIn();
-      allow write: if isAdmin();
+      allow create, update: if isAdmin() && isValidSetting(incoming());
+      allow delete: if isAdmin();
     }
   }
 }
